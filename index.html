@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Primecare Chiropractic – Intake</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --teal: #4a9a9a;
+  --teal-dark: #2d7a7a;
+  --teal-light: #e8f4f4;
+  --gray: #555;
+  --light: #f7fafa;
+  --border: #ccc;
+  --red: #d9534f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--light); font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; color: #333; }
+
+/* ── HEADER ── */
+header {
+  background: white;
+  border-bottom: 3px solid var(--teal);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.logo-area { display: flex; align-items: center; gap: 12px; }
+.logo-circle {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--teal); display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 22px;
+}
+.clinic-name { font-size: 20px; font-weight: 700; color: var(--teal-dark); line-height: 1.2; }
+.clinic-sub { font-size: 13px; color: var(--gray); }
+
+/* ── STEP INDICATOR ── */
+.steps {
+  display: flex; gap: 0; background: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+.step-tab {
+  flex: 1; padding: 14px 8px; text-align: center;
+  font-size: 13px; font-weight: 600; color: #999;
+  border-bottom: 3px solid transparent;
+  cursor: pointer; transition: all .2s;
+}
+.step-tab.active { color: var(--teal-dark); border-bottom-color: var(--teal); background: var(--teal-light); }
+.step-tab.done { color: var(--teal); }
+.step-num { font-size: 18px; display: block; margin-bottom: 2px; }
+
+/* ── PAGE ── */
+.page { display: none; padding: 24px; max-width: 900px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* ── SECTION ── */
+.section-title {
+  font-size: 20px; font-weight: 700; color: var(--teal-dark);
+  border-bottom: 2px solid var(--teal-light); padding-bottom: 8px; margin-bottom: 20px;
+}
+
+/* ── FORM ROWS ── */
+.form-row { display: flex; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; }
+.form-group.full { flex: 1 1 100%; }
+.form-group.small { flex: 0 0 100px; min-width: 80px; }
+.form-group.medium { flex: 0 0 200px; }
+
+label { font-size: 15px; font-weight: 600; color: var(--gray); }
+label .pt { display: block; color: var(--teal-dark); }
+label .en { display: block; color: #888; font-size: 13px; font-weight: 400; }
+
+input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"], textarea, select {
+  font-size: 17px; padding: 12px 14px;
+  border: 2px solid var(--border); border-radius: 10px;
+  background: white; width: 100%; outline: none;
+  transition: border-color .2s;
+  -webkit-appearance: none;
+  font-family: inherit;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--teal); }
+
+/* ── RADIO / CHECK ── */
+.radio-group, .check-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+.radio-btn, .check-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 18px; border: 2px solid var(--border); border-radius: 10px;
+  background: white; cursor: pointer; font-size: 16px; font-weight: 500;
+  transition: all .15s; user-select: none;
+}
+.radio-btn.selected, .check-btn.checked {
+  border-color: var(--teal); background: var(--teal-light); color: var(--teal-dark);
+}
+.radio-btn .icon, .check-btn .icon { font-size: 20px; }
+
+/* ── AUTHORIZATION BOX ── */
+.auth-box {
+  background: #fff9e6; border: 2px solid #f0c040; border-radius: 12px;
+  padding: 16px 18px; margin: 20px 0; font-size: 15px; line-height: 1.6;
+}
+.auth-box strong { display: block; font-size: 16px; margin-bottom: 6px; color: #8a6000; }
+
+/* ── SIGNATURE ── */
+.sig-wrapper { margin: 16px 0; }
+.sig-label { font-size: 15px; font-weight: 600; color: var(--gray); margin-bottom: 8px; }
+.sig-canvas-wrap {
+  position: relative; border: 2px solid var(--border); border-radius: 12px;
+  background: white; overflow: hidden;
+}
+canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 100%; }
+.sig-line {
+  position: absolute; bottom: 36px; left: 40px; right: 40px;
+  border-bottom: 1px solid #ccc; pointer-events: none;
+}
+.sig-x { position: absolute; bottom: 38px; left: 18px; font-size: 18px; color: #aaa; }
+.sig-clear {
+  position: absolute; top: 8px; right: 10px;
+  background: white; border: 1px solid #ddd; border-radius: 6px;
+  padding: 4px 10px; font-size: 13px; color: #888; cursor: pointer;
+}
+
+/* ── PAIN DIAGRAM ── */
+.diagram-container {
+  background: white; border: 2px solid #e0e0e0; border-radius: 16px;
+  padding: 20px; text-align: center; margin-bottom: 20px;
+}
+.diagram-title { font-size: 17px; font-weight: 700; color: var(--teal-dark); margin-bottom: 4px; }
+.diagram-hint { font-size: 13px; color: #888; margin-bottom: 16px; }
+.body-svg { max-width: 500px; width: 100%; cursor: pointer; }
+.body-region { fill: transparent; stroke: transparent; transition: fill .15s; }
+.body-region.marked { fill: rgba(209,0,0,0.25); stroke: #d10000; stroke-width: 1.5; }
+
+/* ── PAIN SCALE ── */
+.pain-scale-wrap { background: white; border: 2px solid #e0e0e0; border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+.pain-scale-title { font-size: 16px; font-weight: 700; color: var(--teal-dark); margin-bottom: 12px; }
+.pain-scale-sub { font-size: 13px; color: #888; margin-bottom: 14px; }
+.pain-slider { width: 100%; -webkit-appearance: none; height: 10px; border-radius: 5px; outline: none; margin: 10px 0; }
+.pain-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 32px; height: 32px; border-radius: 50%; background: var(--teal); cursor: pointer; }
+.pain-labels { display: flex; justify-content: space-between; font-size: 13px; color: #888; }
+.pain-value { text-align: center; font-size: 36px; font-weight: 800; color: var(--teal-dark); margin: 8px 0; }
+.pain-desc { text-align: center; font-size: 14px; color: #888; }
+
+/* ── MEDICAL HISTORY ── */
+.mh-question {
+  background: white; border: 2px solid #e0e0e0; border-radius: 14px;
+  padding: 18px; margin-bottom: 16px;
+}
+.mh-q-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.mh-q-pt { font-size: 16px; font-weight: 700; color: var(--teal-dark); }
+.mh-q-en { font-size: 14px; color: #888; font-style: italic; }
+.mh-detail { margin-top: 12px; display: none; }
+.mh-detail.show { display: block; }
+.mh-detail-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.mh-detail-row .form-group { min-width: 140px; }
+
+.important-box {
+  background: #fff0f0; border: 2px solid #f08080; border-radius: 14px;
+  padding: 18px; margin-bottom: 16px;
+}
+.important-title { font-size: 16px; font-weight: 800; color: #c0392b; margin-bottom: 12px; }
+.check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── NAVIGATION ── */
+.nav-bar {
+  position: sticky; bottom: 0; background: white;
+  border-top: 2px solid #e0e0e0; padding: 14px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  z-index: 100;
+}
+.btn {
+  padding: 14px 32px; border-radius: 12px; font-size: 17px; font-weight: 700;
+  border: none; cursor: pointer; transition: all .15s;
+}
+.btn-back { background: #f0f0f0; color: #555; }
+.btn-back:active { background: #e0e0e0; }
+.btn-next { background: var(--teal); color: white; }
+.btn-next:active { background: var(--teal-dark); }
+.btn-submit { background: #2ecc71; color: white; font-size: 17px; }
+.btn-submit:active { background: #27ae60; }
+.btn:disabled { opacity: 0.4; }
+.progress-text { font-size: 14px; color: #999; }
+
+/* ── THANK YOU ── */
+.thankyou { display: none; text-align: center; padding: 60px 24px; }
+.thankyou.active { display: block; }
+.ty-icon { font-size: 72px; margin-bottom: 20px; }
+.ty-title { font-size: 28px; font-weight: 800; color: var(--teal-dark); margin-bottom: 12px; }
+.ty-sub { font-size: 17px; color: #666; line-height: 1.6; margin-bottom: 30px; }
+.btn-restart { background: var(--teal); color: white; padding: 16px 40px; border-radius: 12px; font-size: 17px; font-weight: 700; border: none; cursor: pointer; }
+
+/* ── RESPONSIVE ── */
+@media (min-width: 700px) {
+  .check-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <div class="logo-circle">✚</div>
+    <div>
+      <div class="clinic-name">Primecare Chiropractic</div>
+      <div class="clinic-sub">600 Main Street, Malden, MA 02148</div>
+    </div>
+  </div>
+  <div style="text-align:right; font-size:13px; color:#999; line-height:1.6;">
+    (857) 410-1800<br>info@primecaremalden.com
+  </div>
+</header>
+
+<div class="steps" id="stepTabs">
+  <div class="step-tab active" data-step="0">
+    <span class="step-num">1</span>Informações / Info
+  </div>
+  <div class="step-tab" data-step="1">
+    <span class="step-num">2</span>Dor / Pain
+  </div>
+  <div class="step-tab" data-step="2">
+    <span class="step-num">3</span>Histórico / History
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- PAGE 1: PATIENT INFO                               -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="page active" id="page0">
+
+  <p class="section-title" style="margin-top:16px;">Por favor preencha as informações abaixo</p>
+
+  <div class="form-row">
+    <div class="form-group medium">
+      <label><span class="pt">Data</span><span class="en">Today's Date</span></label>
+      <input type="date" id="dataHoje">
+    </div>
+    <div class="form-group medium">
+      <label><span class="pt">Data de Nascimento</span><span class="en">Date of Birth</span></label>
+      <input type="date" id="dataNasc">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group full">
+      <label><span class="pt">Nome Completo</span><span class="en">Full Name</span></label>
+      <input type="text" id="nomeCompleto" placeholder="Nome completo / Full name" autocomplete="name">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group" style="flex:3; min-width:200px;">
+      <label><span class="pt">Endereço</span><span class="en">Address</span></label>
+      <input type="text" id="endereco" placeholder="Rua / Street" autocomplete="street-address">
+    </div>
+    <div class="form-group small">
+      <label><span class="pt">Apt</span><span class="en">Apt</span></label>
+      <input type="text" id="apt" placeholder="Apt">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label><span class="pt">Cidade</span><span class="en">City</span></label>
+      <input type="text" id="cidade" placeholder="Cidade / City" autocomplete="address-level2">
+    </div>
+    <div class="form-group small">
+      <label><span class="pt">Estado</span><span class="en">State</span></label>
+      <input type="text" id="estado" placeholder="MA" maxlength="2" autocomplete="address-level1">
+    </div>
+    <div class="form-group small" style="flex: 0 0 120px;">
+      <label><span class="pt">Zip</span><span class="en">ZIP</span></label>
+      <input type="text" id="zip" placeholder="00000" maxlength="10" autocomplete="postal-code">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label><span class="pt">Tel / Phone</span><span class="en">Phone</span></label>
+      <input type="tel" id="tel" placeholder="(000) 000-0000" autocomplete="tel">
+    </div>
+    <div class="form-group">
+      <label><span class="pt">Email</span><span class="en">Email</span></label>
+      <input type="email" id="email" placeholder="email@exemplo.com" autocomplete="email">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group full">
+      <label><span class="pt">Precisa de Intérprete?</span><span class="en">Interpreter needed?</span></label>
+      <div class="radio-group">
+        <div class="radio-btn" data-group="interprete" data-val="Sim / Yes" onclick="selectRadio(this)">
+          <span class="icon">🗣️</span> Sim / Yes
+        </div>
+        <div class="radio-btn" data-group="interprete" data-val="Não / No" onclick="selectRadio(this)">
+          <span class="icon">✓</span> Não / No
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group medium">
+      <label><span class="pt">Data do Acidente</span><span class="en">Accident Date</span></label>
+      <input type="date" id="dataAcidente">
+    </div>
+    <div class="form-group medium">
+      <label><span class="pt">Hora do Acidente</span><span class="en">Accident Time</span></label>
+      <input type="time" id="horaAcidente">
+    </div>
+  </div>
+
+  <div class="auth-box">
+    <strong>Autorização de Comunicação / Communication Authorization</strong>
+    Eu autorizo a Primecare Chiropractic a entrar em contato comigo por email, mensagem de texto, WhatsApp ou qualquer outra forma de comunicação.<br>
+    <em style="font-size:13px; color:#8a6000;">I authorize Primecare Chiropractic to contact me by email, text message, WhatsApp, or any other form of communication.</em>
+  </div>
+
+  <div class="sig-wrapper">
+    <div class="sig-label">✍️ Assinatura / Signature</div>
+    <div class="sig-canvas-wrap">
+      <canvas class="sig-pad" id="sig1" height="130"></canvas>
+      <div class="sig-line"></div>
+      <div class="sig-x">✕</div>
+      <button class="sig-clear" onclick="clearSig('sig1')">Limpar / Clear</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- PAGE 2: PAIN DIAGRAM                               -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="page" id="page1">
+
+  <p class="section-title" style="margin-top:16px;">Área de Dor / Pain Location</p>
+
+  <div class="diagram-container">
+    <div class="diagram-title">Use o diagrama abaixo para indicar as áreas onde sente dor.</div>
+    <div class="diagram-hint">Use the diagram to indicate where you feel pain. / Toque nas áreas com dor.</div>
+
+    <!-- Inline SVG body diagram with clickable regions -->
+    <svg class="body-svg" viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg" id="bodySvg">
+      <!-- Body outline paths (front view) -->
+      <!-- HEAD -->
+      <ellipse cx="130" cy="46" rx="32" ry="38" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- NECK -->
+      <rect x="118" y="82" width="24" height="20" rx="4" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- TORSO -->
+      <path d="M95,102 Q80,115 78,160 L78,230 Q78,240 85,244 L175,244 Q182,240 182,230 L182,160 Q180,115 165,102 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT ARM -->
+      <path d="M95,110 Q72,120 65,155 Q58,185 60,215 Q62,225 70,224 Q78,223 80,213 Q78,185 85,155 Q91,130 99,120 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT ARM -->
+      <path d="M165,110 Q188,120 195,155 Q202,185 200,215 Q198,225 190,224 Q182,223 180,213 Q182,185 175,155 Q169,130 161,120 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT FOREARM -->
+      <path d="M60,215 Q58,230 55,255 Q52,275 54,295 Q58,302 65,300 Q72,298 73,288 Q71,268 74,245 Q76,230 80,213 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT FOREARM -->
+      <path d="M200,215 Q202,230 205,255 Q208,275 206,295 Q202,302 195,300 Q188,298 187,288 Q189,268 186,245 Q184,230 180,213 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT HAND -->
+      <ellipse cx="61" cy="308" rx="14" ry="18" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT HAND -->
+      <ellipse cx="199" cy="308" rx="14" ry="18" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- HIPS -->
+      <path d="M85,244 Q78,250 76,265 L84,280 L176,280 L184,265 Q182,250 175,244 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT THIGH -->
+      <path d="M84,278 Q78,290 76,330 Q74,360 78,380 Q83,388 93,386 Q103,384 104,374 Q100,354 102,330 Q104,305 108,280 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT THIGH -->
+      <path d="M176,278 Q182,290 184,330 Q186,360 182,380 Q177,388 167,386 Q157,384 156,374 Q160,354 158,330 Q156,305 152,280 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT SHIN -->
+      <path d="M78,380 Q74,400 75,430 Q76,455 80,468 Q86,474 94,472 Q102,470 104,460 Q102,438 103,415 Q104,395 104,374 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT SHIN -->
+      <path d="M182,380 Q186,400 185,430 Q184,455 180,468 Q174,474 166,472 Q158,470 156,460 Q158,438 157,415 Q156,395 156,374 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT FOOT -->
+      <ellipse cx="84" cy="476" rx="16" ry="10" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT FOOT -->
+      <ellipse cx="176" cy="476" rx="16" ry="10" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+
+      <!-- BACK VIEW -->
+      <!-- HEAD BACK -->
+      <ellipse cx="290" cy="46" rx="32" ry="38" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- NECK BACK -->
+      <rect x="278" y="82" width="24" height="20" rx="4" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
+      <!-- BACK TORSO -->
+      <path d="M255,102 Q240,115 238,160 L238,230 Q238,240 245,244 L335,244 Q342,240 342,230 L342,160 Q340,115 325,102 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT ARM BACK -->
+      <path d="M255,110 Q232,120 225,155 Q218,185 220,215 Q222,225 230,224 Q238,223 240,213 Q238,185 245,155 Q251,130 259,120 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT ARM BACK -->
+      <path d="M325,110 Q348,120 355,155 Q362,185 360,215 Q358,225 350,224 Q342,223 340,213 Q342,185 335,155 Q329,130 321,120 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT FOREARM BACK -->
+      <path d="M220,215 Q218,230 215,255 Q212,275 214,295 Q218,302 225,300 Q232,298 233,288 Q231,268 234,245 Q236,230 240,213 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT FOREARM BACK -->
+      <path d="M360,215 Q362,230 365,255 Q368,275 366,295 Q362,302 355,300 Q348,298 347,288 Q349,268 346,245 Q344,230 340,213 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT HAND BACK -->
+      <ellipse cx="221" cy="308" rx="14" ry="18" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT HAND BACK -->
+      <ellipse cx="359" cy="308" rx="14" ry="18" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- HIPS BACK -->
+      <path d="M245,244 Q238,250 236,265 L244,280 L336,280 L344,265 Q342,250 335,244 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT THIGH BACK -->
+      <path d="M244,278 Q238,290 236,330 Q234,360 238,380 Q243,388 253,386 Q263,384 264,374 Q260,354 262,330 Q264,305 268,280 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT THIGH BACK -->
+      <path d="M336,278 Q342,290 344,330 Q346,360 342,380 Q337,388 327,386 Q317,384 316,374 Q320,354 318,330 Q316,305 312,280 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT SHIN BACK -->
+      <path d="M238,380 Q234,400 235,430 Q236,455 240,468 Q246,474 254,472 Q262,470 264,460 Q262,438 263,415 Q264,395 264,374 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT SHIN BACK -->
+      <path d="M342,380 Q346,400 345,430 Q344,455 340,468 Q334,474 326,472 Q318,470 316,460 Q318,438 317,415 Q316,395 316,374 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- LEFT FOOT BACK -->
+      <ellipse cx="244" cy="476" rx="16" ry="10" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+      <!-- RIGHT FOOT BACK -->
+      <ellipse cx="336" cy="476" rx="16" ry="10" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
+
+      <!-- Labels -->
+      <text x="130" y="500" text-anchor="middle" font-size="12" fill="#666">FRENTE / FRONT</text>
+      <text x="290" y="500" text-anchor="middle" font-size="12" fill="#666">COSTAS / BACK</text>
+      <text x="130" y="515" text-anchor="middle" font-size="10" fill="#aaa">◄ ESQ &nbsp;&nbsp; DIR ►</text>
+      <text x="290" y="515" text-anchor="middle" font-size="10" fill="#aaa">◄ ESQ &nbsp;&nbsp; DIR ►</text>
+
+      <!-- CLICKABLE PAIN REGIONS (transparent overlays) -->
+      <!-- FRONT -->
+      <ellipse class="body-region" data-region="Cabeça / Head" cx="130" cy="46" rx="34" ry="40" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Pescoço / Neck" x="112" y="78" width="36" height="28" rx="6" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Ombro Esq. / Left Shoulder" x="72" y="100" width="40" height="35" rx="4" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Ombro Dir. / Right Shoulder" x="148" y="100" width="40" height="35" rx="4" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Peito / Chest" x="94" y="110" width="72" height="70" rx="4" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Abdômen / Abdomen" x="94" y="180" width="72" height="65" rx="4" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Braço Esq. / Left Arm" x="58" y="130" width="30" height="80" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Braço Dir. / Right Arm" x="172" y="130" width="30" height="80" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Antebraço Esq. / Left Forearm" x="52" y="215" width="28" height="80" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Antebraço Dir. / Right Forearm" x="180" y="215" width="28" height="80" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <ellipse class="body-region" data-region="Mão Esq. / Left Hand" cx="61" cy="308" rx="16" ry="20" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <ellipse class="body-region" data-region="Mão Dir. / Right Hand" cx="199" cy="308" rx="16" ry="20" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Quadril / Hip" x="82" y="244" width="96" height="36" rx="4" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Coxa Esq. / Left Thigh" x="76" y="278" width="36" height="100" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Coxa Dir. / Right Thigh" x="148" y="278" width="36" height="100" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Perna Esq. / Left Leg" x="76" y="378" width="32" height="92" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Perna Dir. / Right Leg" x="152" y="378" width="32" height="92" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <ellipse class="body-region" data-region="Pé Esq. / Left Foot" cx="84" cy="476" rx="18" ry="12" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <ellipse class="body-region" data-region="Pé Dir. / Right Foot" cx="176" cy="476" rx="18" ry="12" onclick="toggleRegion(this)" style="cursor:pointer"/>
+
+      <!-- BACK -->
+      <ellipse class="body-region" data-region="Cabeça Costas / Head (Back)" cx="290" cy="46" rx="34" ry="40" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Pescoço Costas / Neck (Back)" x="272" y="78" width="36" height="28" rx="6" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Ombro Esq. Costas / L. Shoulder (Back)" x="232" y="100" width="40" height="35" rx="4" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Ombro Dir. Costas / R. Shoulder (Back)" x="308" y="100" width="40" height="35" rx="4" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Costas Superiores / Upper Back" x="254" y="110" width="72" height="70" rx="4" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Lombar / Lower Back" x="254" y="180" width="72" height="65" rx="4" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Glúteo / Buttocks" x="242" y="244" width="96" height="36" rx="4" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Coxa Esq. Costas / L. Thigh (Back)" x="236" y="278" width="36" height="100" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Coxa Dir. Costas / R. Thigh (Back)" x="308" y="278" width="36" height="100" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Perna Esq. Costas / L. Leg (Back)" x="236" y="378" width="32" height="92" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+      <rect class="body-region" data-region="Perna Dir. Costas / R. Leg (Back)" x="312" y="378" width="32" height="92" rx="8" onclick="toggleRegion(this)" style="cursor:pointer"/>
+    </svg>
+
+    <!-- Marked region tags -->
+    <div id="markedRegions" style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; min-height:32px;">
+      <span style="color:#aaa; font-size:13px;" id="noRegionHint">Toque no corpo para marcar a dor / Tap the body to mark pain</span>
+    </div>
+  </div>
+
+  <!-- PAIN SCALE -->
+  <div class="pain-scale-wrap">
+    <div class="pain-scale-title">Intensidade da Dor / Pain Intensity</div>
+    <div class="pain-scale-sub">Por favor selecione o número que representa sua dor. / Please select the number that represents your pain.</div>
+    <div class="pain-value" id="painValue">5</div>
+    <div class="pain-desc" id="painDesc">Dor moderada / Moderate pain</div>
+    <input type="range" class="pain-slider" id="painSlider" min="0" max="10" value="5"
+      oninput="updatePain(this.value)"
+      style="background: linear-gradient(to right, #2ecc71 0%, #f39c12 50%, #e74c3c 100%)">
+    <div class="pain-labels">
+      <span>0 – Sem dor / No pain</span>
+      <span>10 – Pior dor / Worst pain</span>
+    </div>
+  </div>
+
+  <!-- Signature 2 -->
+  <div class="sig-wrapper">
+    <div class="sig-label">✍️ Assinatura / Signature</div>
+    <div class="sig-canvas-wrap">
+      <canvas class="sig-pad" id="sig2" height="130"></canvas>
+      <div class="sig-line"></div>
+      <div class="sig-x">✕</div>
+      <button class="sig-clear" onclick="clearSig('sig2')">Limpar / Clear</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- PAGE 3: MEDICAL HISTORY                            -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="page" id="page2">
+
+  <p class="section-title" style="margin-top:16px;">Histórico Médico / Medical History</p>
+
+  <!-- Q1 Surgery -->
+  <div class="mh-question">
+    <div class="mh-q-header">
+      <div>
+        <div class="mh-q-pt">1. Já fez alguma cirurgia? <small style="font-weight:400">(Ex: cesárea, joelho, coluna)</small></div>
+        <div class="mh-q-en">Have you had any surgery? (Ex: C-section, knee, back)</div>
+      </div>
+    </div>
+    <div class="radio-group" style="margin-top:12px;">
+      <div class="radio-btn" data-group="cirurgia" data-val="Sim" onclick="selectRadioMH(this,'cirurgiaDetail')">
+        <span class="icon">✓</span> Sim / Yes
+      </div>
+      <div class="radio-btn" data-group="cirurgia" data-val="Não" onclick="selectRadioMH(this,null)">
+        <span class="icon">✕</span> Não / No
+      </div>
+    </div>
+    <div class="mh-detail" id="cirurgiaDetail">
+      <div class="mh-detail-row">
+        <div class="form-group"><label>O que / What</label><input type="text" id="cirurgia_o_que"></div>
+        <div class="form-group"><label>Quando / When</label><input type="text" id="cirurgia_quando"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 Medication -->
+  <div class="mh-question">
+    <div class="mh-q-header">
+      <div>
+        <div class="mh-q-pt">2. Você toma remédio todos os dias? <small style="font-weight:400">(Ex: pressão, diabetes, ansiedade)</small></div>
+        <div class="mh-q-en">Do you take medication daily? (Ex: blood pressure, diabetes, anxiety)</div>
+      </div>
+    </div>
+    <div class="radio-group" style="margin-top:12px;">
+      <div class="radio-btn" data-group="remedio" data-val="Sim" onclick="selectRadioMH(this,'remedioDetail')">
+        <span class="icon">✓</span> Sim / Yes
+      </div>
+      <div class="radio-btn" data-group="remedio" data-val="Não" onclick="selectRadioMH(this,null)">
+        <span class="icon">✕</span> Não / No
+      </div>
+    </div>
+    <div class="mh-detail" id="remedioDetail">
+      <div class="mh-detail-row">
+        <div class="form-group"><label>Qual / What</label><input type="text" id="remedio_qual"></div>
+        <div class="form-group"><label>Quem receitou / Who prescribed</label><input type="text" id="remedio_quem"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q3 Health Problems -->
+  <div class="mh-question">
+    <div class="mh-q-header">
+      <div>
+        <div class="mh-q-pt">3. Você tem algum problema de saúde? <small style="font-weight:400">(Ex: coração, ansiedade)</small></div>
+        <div class="mh-q-en">Do you have any health problems? (Ex: heart, pain, anxiety)</div>
+      </div>
+    </div>
+    <div class="radio-group" style="margin-top:12px;">
+      <div class="radio-btn" data-group="saude" data-val="Sim" onclick="selectRadioMH(this,'saudeDetail')">
+        <span class="icon">✓</span> Sim / Yes
+      </div>
+      <div class="radio-btn" data-group="saude" data-val="Não" onclick="selectRadioMH(this,null)">
+        <span class="icon">✕</span> Não / No
+      </div>
+    </div>
+    <div class="mh-detail" id="saudeDetail">
+      <div class="mh-detail-row">
+        <div class="form-group"><label>Qual / What</label><input type="text" id="saude_qual"></div>
+        <div class="form-group"><label>Desde quando / Since when</label><input type="text" id="saude_desde"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q4 Previous Accident -->
+  <div class="mh-question">
+    <div class="mh-q-header">
+      <div>
+        <div class="mh-q-pt">4. Já sofreu acidente? <small style="font-weight:400">(Ex: carro, queda, trabalho)</small></div>
+        <div class="mh-q-en">Any previous accident? (Ex: car, fall, work)</div>
+      </div>
+    </div>
+    <div class="radio-group" style="margin-top:12px;">
+      <div class="radio-btn" data-group="acidente" data-val="Sim" onclick="selectRadioMH(this,'acidenteDetail')">
+        <span class="icon">✓</span> Sim / Yes
+      </div>
+      <div class="radio-btn" data-group="acidente" data-val="Não" onclick="selectRadioMH(this,null)">
+        <span class="icon">✕</span> Não / No
+      </div>
+    </div>
+    <div class="mh-detail" id="acidenteDetail">
+      <div class="mh-detail-row">
+        <div class="form-group"><label>O que / What</label><input type="text" id="acidente_o_que"></div>
+        <div class="form-group"><label>Quando / When</label><input type="text" id="acidente_quando"></div>
+        <div class="form-group"><label>Tratamento / Treatment</label><input type="text" id="acidente_tratamento"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q5 Family History -->
+  <div class="mh-question">
+    <div class="mh-q-pt" style="margin-bottom:12px;">5. Histórico de saúde (você ou seus pais) / Medical history (you or family)</div>
+    <div class="check-grid">
+      <div class="check-btn" data-check="Diabetes" onclick="toggleCheck(this)">
+        <span class="icon">☐</span> Diabetes
+      </div>
+      <div class="check-btn" data-check="Pressão alta / High blood pressure" onclick="toggleCheck(this)">
+        <span class="icon">☐</span> Pressão alta / High BP
+      </div>
+      <div class="check-btn" data-check="Coração / Heart problems" onclick="toggleCheck(this)">
+        <span class="icon">☐</span> Coração / Heart
+      </div>
+      <div class="check-btn" data-check="Derrame / Stroke" onclick="toggleCheck(this)">
+        <span class="icon">☐</span> Derrame / Stroke
+      </div>
+      <div class="check-btn" data-check="Câncer / Cancer" onclick="toggleCheck(this)">
+        <span class="icon">☐</span> Câncer / Cancer
+      </div>
+    </div>
+  </div>
+
+  <!-- Q6 IMPORTANT -->
+  <div class="important-box">
+    <div class="important-title">⚠️ 6. MUITO IMPORTANTE / VERY IMPORTANT</div>
+    <div style="font-size:14px; color:#c0392b; margin-bottom:12px;">
+      Marque se você tem alguma dessas condições: / Check if you have any of these conditions:
+    </div>
+    <div class="check-grid">
+      <div class="check-btn" data-check="Marca-passo / Pacemaker" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span> Marca-passo / Pacemaker
+      </div>
+      <div class="check-btn" data-check="Grávida / Pregnant" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span> Grávida / Pregnant
+      </div>
+      <div class="check-btn" data-check="Próteses/metais / Metal implants" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span> Próteses/metais / Metal implants
+      </div>
+      <div class="check-btn" data-check="Trombose / Blood clots" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span> Trombose / Blood clots
+      </div>
+      <div class="check-btn" data-check="Câncer/tumor / Cancer/tumor" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span> Câncer/tumor
+      </div>
+      <div class="check-btn" data-check="Dormência na pele / Loss of sensation" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span> Dormência / Loss of sensation
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- THANK YOU -->
+<div class="thankyou" id="thankYou">
+  <div class="ty-icon">✅</div>
+  <div class="ty-title">Obrigado! / Thank You!</div>
+  <div class="ty-sub">
+    Suas informações foram enviadas para a equipe da Primecare Chiropractic.<br>
+    <em style="font-size:14px;">Your information has been sent to the Primecare Chiropractic team.</em><br><br>
+    Por favor entregue o iPad à recepção.<br>
+    <em style="font-size:14px;">Please return the iPad to the front desk.</em>
+  </div>
+  <button class="btn-restart" onclick="restart()">Novo Paciente / New Patient</button>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav-bar" id="navBar">
+  <button class="btn btn-back" id="btnBack" onclick="goBack()" disabled>← Voltar / Back</button>
+  <div class="progress-text" id="progressText">Passo 1 de 3 / Step 1 of 3</div>
+  <button class="btn btn-next" id="btnNext" onclick="goNext()">Próximo / Next →</button>
+</div>
+
+<script>
+// ── STATE ──
+let currentPage = 0;
+const totalPages = 3;
+let painRegions = [];
+const signatures = {};
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('dataHoje').valueAsDate = new Date();
+  initSig('sig1');
+  initSig('sig2');
+  updatePain(5);
+  resizeAllSigs();
+});
+window.addEventListener('resize', resizeAllSigs);
+
+function resizeAllSigs() {
+  ['sig1','sig2'].forEach(id => {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    const wrap = canvas.parentElement;
+    const w = wrap.clientWidth;
+    const dpr = window.devicePixelRatio || 1;
+    if (canvas.width !== Math.round(w * dpr)) {
+      const saved = signatures[id];
+      canvas.width = Math.round(w * dpr);
+      canvas.height = 130 * dpr;
+      canvas.style.height = '130px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      if (saved) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0, w, 130);
+        img.src = saved;
+      }
+    }
+  });
+}
+
+// ── SIGNATURE ──
+function initSig(id) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let drawing = false, lastX = 0, lastY = 0;
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    if (e.touches) {
+      return { x: (e.touches[0].clientX - rect.left), y: (e.touches[0].clientY - rect.top) };
+    }
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  function start(e) {
+    e.preventDefault();
+    drawing = true;
+    const pos = getPos(e);
+    lastX = pos.x; lastY = pos.y;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+  }
+  function move(e) {
+    e.preventDefault();
+    if (!drawing) return;
+    const pos = getPos(e);
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#222';
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastX = pos.x; lastY = pos.y;
+  }
+  function end(e) {
+    e.preventDefault();
+    if (!drawing) return;
+    drawing = false;
+    signatures[id] = canvas.toDataURL();
+  }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  canvas.addEventListener('touchend', end, { passive: false });
+}
+
+function clearSig(id) {
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  delete signatures[id];
+}
+
+// ── RADIO ──
+function selectRadio(el) {
+  const group = el.dataset.group;
+  document.querySelectorAll(`.radio-btn[data-group="${group}"]`).forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectRadioMH(el, detailId) {
+  const group = el.dataset.group;
+  document.querySelectorAll(`.radio-btn[data-group="${group}"]`).forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  // Hide all details for group first
+  document.querySelectorAll('.mh-detail').forEach(d => {
+    if (d.id && d.id.startsWith(group)) d.classList.remove('show');
+  });
+  if (detailId && el.dataset.val === 'Sim') {
+    document.getElementById(detailId).classList.add('show');
+  }
+}
+
+// ── CHECKBOXES ──
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const icon = el.querySelector('.icon');
+  icon.textContent = el.classList.contains('checked') ? '☑' : '☐';
+}
+
+// ── PAIN DIAGRAM ──
+function toggleRegion(el) {
+  const region = el.dataset.region;
+  el.classList.toggle('marked');
+  if (el.classList.contains('marked')) {
+    painRegions.push(region);
+  } else {
+    painRegions = painRegions.filter(r => r !== region);
+  }
+  renderRegionTags();
+}
+
+function renderRegionTags() {
+  const container = document.getElementById('markedRegions');
+  const hint = document.getElementById('noRegionHint');
+  container.innerHTML = '';
+  if (painRegions.length === 0) {
+    container.appendChild(hint);
+    return;
+  }
+  painRegions.forEach(r => {
+    const tag = document.createElement('span');
+    tag.style.cssText = 'background:#ffe0e0;color:#c00;border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600;';
+    tag.textContent = '🔴 ' + r;
+    container.appendChild(tag);
+  });
+}
+
+// ── PAIN SCALE ──
+const painDescs = [
+  'Sem dor / No pain',
+  'Dor mínima / Minimal pain',
+  'Dor leve / Mild pain',
+  'Dor leve-moderada / Mild-moderate pain',
+  'Dor moderada / Moderate pain',
+  'Dor moderada / Moderate pain',
+  'Dor moderada-forte / Moderate-severe pain',
+  'Dor forte / Severe pain',
+  'Dor muito forte / Very severe pain',
+  'Dor quase insuportável / Nearly unbearable',
+  'Pior dor possível / Worst possible pain'
+];
+function updatePain(v) {
+  document.getElementById('painValue').textContent = v;
+  document.getElementById('painDesc').textContent = painDescs[parseInt(v)];
+  const pct = v / 10;
+  const r1 = [46,204,113], r2 = [243,156,18], r3 = [231,76,60];
+  let r,g,b;
+  if (pct <= 0.5) {
+    const t = pct * 2;
+    r = Math.round(r1[0] + (r2[0]-r1[0])*t);
+    g = Math.round(r1[1] + (r2[1]-r1[1])*t);
+    b = Math.round(r1[2] + (r2[2]-r1[2])*t);
+  } else {
+    const t = (pct - 0.5) * 2;
+    r = Math.round(r2[0] + (r3[0]-r2[0])*t);
+    g = Math.round(r2[1] + (r3[1]-r2[1])*t);
+    b = Math.round(r2[2] + (r3[2]-r2[2])*t);
+  }
+  document.getElementById('painValue').style.color = `rgb(${r},${g},${b})`;
+}
+
+// ── NAVIGATION ──
+function goNext() {
+  if (currentPage < totalPages - 1) {
+    showPage(currentPage + 1);
+  } else {
+    submitForm();
+  }
+}
+function goBack() {
+  if (currentPage > 0) showPage(currentPage - 1);
+}
+
+function showPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.step-tab').forEach((t,i) => {
+    t.classList.remove('active','done');
+    if (i < n) t.classList.add('done');
+    if (i === n) t.classList.add('active');
+  });
+  document.getElementById('page' + n).classList.add('active');
+  currentPage = n;
+  document.getElementById('btnBack').disabled = n === 0;
+  const isLast = n === totalPages - 1;
+  const btnNext = document.getElementById('btnNext');
+  btnNext.textContent = isLast ? '✉️ Enviar / Submit' : 'Próximo / Next →';
+  btnNext.className = isLast ? 'btn btn-submit' : 'btn btn-next';
+  document.getElementById('progressText').textContent = `Passo ${n+1} de ${totalPages} / Step ${n+1} of ${totalPages}`;
+  window.scrollTo(0, 0);
+
+  if (n === 1) {
+    setTimeout(resizeAllSigs, 50);
+  }
+}
+
+// ── COLLECT DATA ──
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+function radio(group) {
+  const el = document.querySelector(`.radio-btn.selected[data-group="${group}"]`);
+  return el ? el.dataset.val : '—';
+}
+function checks() {
+  const checked = [];
+  document.querySelectorAll('.check-btn.checked').forEach(el => checked.push(el.dataset.check));
+  return checked.length ? checked.join(', ') : 'Nenhum / None';
+}
+function importantChecks() {
+  const checked = [];
+  document.querySelectorAll('.important-box .check-btn.checked').forEach(el => checked.push(el.dataset.check));
+  return checked.length ? checked.join(', ') : 'Nenhum / None';
+}
+
+// ── PDF GENERATION ──
+async function generatePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  const W = 215.9, M = 18, cw = W - M * 2;
+  let y = 0;
+
+  const teal = [45, 122, 122];
+  const tealLight = [232, 244, 244];
+  const gray = [85, 85, 85];
+  const black = [30, 30, 30];
+  const red = [192, 57, 43];
+
+  function newPage() {
+    doc.addPage();
+    y = 0;
+    drawHeader();
+  }
+
+  function checkY(needed) {
+    if (y + needed > 255) newPage();
+  }
+
+  function drawHeader() {
+    // Teal banner
+    doc.setFillColor(...teal);
+    doc.rect(0, 0, W, 18, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Primecare Chiropractic', M, 10);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('600 Main Street, Malden, MA 02148  |  (857) 410-1800  |  info@primecaremalden.com', M, 15);
+    y = 24;
+  }
+
+  function sectionTitle(title) {
+    checkY(14);
+    doc.setFillColor(...tealLight);
+    doc.rect(M, y, cw, 8, 'F');
+    doc.setTextColor(...teal);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text(title, M + 3, y + 5.5);
+    y += 11;
+    doc.setTextColor(...black);
+  }
+
+  function row(label, value, x, rowY, colW) {
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...gray);
+    doc.text(label, x, rowY);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...black);
+    doc.setFontSize(10);
+    const displayVal = value || '—';
+    doc.text(displayVal, x, rowY + 5, { maxWidth: colW - 2 });
+    // underline
+    doc.setDrawColor(200, 200, 200);
+    doc.line(x, rowY + 6.5, x + colW - 2, rowY + 6.5);
+  }
+
+  function field(label, value, x, colW) {
+    checkY(16);
+    row(label, value, x, y, colW);
+    y += 14;
+  }
+
+  function twoFields(l1, v1, l2, v2) {
+    checkY(16);
+    const half = (cw - 6) / 2;
+    row(l1, v1, M, y, half);
+    row(l2, v2, M + half + 6, y, half);
+    y += 14;
+  }
+
+  function threeFields(l1,v1,l2,v2,l3,v3) {
+    checkY(16);
+    const third = (cw - 8) / 3;
+    row(l1, v1, M, y, third);
+    row(l2, v2, M + third + 4, y, third);
+    row(l3, v3, M + (third + 4) * 2, y, third);
+    y += 14;
+  }
+
+  function checkboxRow(label, checked) {
+    const box = checked ? '☑' : '☐';
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...black);
+    doc.text(`${box}  ${label}`, M + 3, y);
+    y += 7;
+  }
+
+  function yesNoBlock(qPt, qEn, answer, details) {
+    checkY(28);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...teal);
+    doc.text(qPt, M, y);
+    y += 5;
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(8);
+    doc.setTextColor(...gray);
+    doc.text(qEn, M, y);
+    y += 5;
+    // Answer pill
+    const ans = answer || '—';
+    const isYes = ans.toLowerCase().includes('sim') || ans.toLowerCase().includes('yes');
+    doc.setFillColor(isYes ? 220 : 240, isYes ? 255 : 240, isYes ? 220 : 240);
+    doc.roundedRect(M, y, 28, 7, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(isYes ? 40 : 100, isYes ? 120 : 100, isYes ? 40 : 100);
+    doc.text(ans, M + 14, y + 4.8, { align: 'center' });
+    y += 10;
+    if (details && details.length) {
+      details.forEach(([lbl, vl]) => {
+        if (vl) {
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(...gray);
+          doc.text(lbl + ':', M + 32, y);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(...black);
+          doc.setFontSize(9);
+          doc.text(vl, M + 32 + doc.getTextWidth(lbl + ': '), y);
+          y += 6;
+        }
+      });
+    }
+    y += 3;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(M, y, M + cw, y);
+    y += 5;
+  }
+
+  function embedSignature(canvasId, label) {
+    checkY(30);
+    const canvas = document.getElementById(canvasId);
+    if (canvas && signatures[canvasId]) {
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...gray);
+      doc.text(label, M, y);
+      y += 3;
+      doc.setDrawColor(...teal);
+      doc.rect(M, y, cw, 22);
+      try {
+        doc.addImage(signatures[canvasId], 'PNG', M + 2, y + 1, cw - 4, 20);
+      } catch(e) {}
+      y += 25;
+    } else {
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...gray);
+      doc.text(label, M, y);
+      y += 3;
+      doc.setDrawColor(...teal);
+      doc.rect(M, y, cw, 18);
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8);
+      doc.setTextColor(180, 180, 180);
+      doc.text('(assinatura / signature)', M + 4, y + 10);
+      y += 21;
+    }
+  }
+
+  // ── PAGE 1: HEADER + PATIENT INFO ──
+  drawHeader();
+
+  // Date stamp
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...gray);
+  doc.text(`Gerado em / Generated: ${new Date().toLocaleString()}`, W - M, y, { align: 'right' });
+  y += 6;
+
+  sectionTitle('INFORMAÇÕES DO PACIENTE / PATIENT INFORMATION');
+  twoFields('Data / Date', val('dataHoje'), 'Data de Nascimento / DOB', val('dataNasc'));
+  field('Nome Completo / Full Name', val('nomeCompleto'), M, cw);
+  twoFields('Endereço / Address', val('endereco'), 'Apt', val('apt'));
+  threeFields('Cidade / City', val('cidade'), 'Estado / State', val('estado'), 'ZIP', val('zip'));
+  twoFields('Telefone / Phone', val('tel'), 'Email', val('email'));
+  twoFields('Intérprete / Interpreter', radio('interprete'), 'Data do Acidente / Accident Date', val('dataAcidente'));
+  field('Hora do Acidente / Accident Time', val('horaAcidente'), M, cw / 2);
+
+  // Authorization
+  checkY(24);
+  doc.setFillColor(255, 249, 230);
+  doc.rect(M, y, cw, 20, 'F');
+  doc.setDrawColor(240, 192, 64);
+  doc.rect(M, y, cw, 20);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(138, 96, 0);
+  doc.text('AUTORIZAÇÃO / AUTHORIZATION', M + 3, y + 5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  const authText = 'Eu autorizo a Primecare Chiropractic a entrar em contato comigo por email, mensagem de texto, WhatsApp ou qualquer outra forma de comunicação. / I authorize Primecare Chiropractic to contact me by email, text, WhatsApp or any other form of communication.';
+  const authLines = doc.splitTextToSize(authText, cw - 6);
+  doc.text(authLines, M + 3, y + 11);
+  y += 23;
+
+  embedSignature('sig1', 'Assinatura / Signature (Página 1 / Page 1)');
+
+  // ── PAGE 2: PAIN ──
+  newPage();
+  sectionTitle('DOR / PAIN INFORMATION');
+
+  // Pain areas
+  checkY(20);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...gray);
+  doc.text('Áreas com dor / Pain areas indicated:', M, y);
+  y += 6;
+  if (painRegions.length) {
+    painRegions.forEach(r => {
+      doc.setFillColor(255, 224, 224);
+      doc.roundedRect(M, y, cw, 7, 2, 2, 'F');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(192, 0, 0);
+      doc.text('● ' + r, M + 3, y + 4.8);
+      y += 9;
+      checkY(10);
+    });
+  } else {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(9);
+    doc.setTextColor(180, 180, 180);
+    doc.text('Nenhuma área indicada / No areas indicated', M + 3, y);
+    y += 8;
+  }
+  y += 4;
+
+  // Pain scale visual
+  checkY(28);
+  const painVal = parseInt(document.getElementById('painSlider').value);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...gray);
+  doc.text('Intensidade da dor / Pain intensity:', M, y);
+  y += 5;
+
+  // Draw scale bar
+  const barW = cw, barH = 8;
+  for (let i = 0; i <= 10; i++) {
+    const x = M + (i / 10) * barW;
+    const r2 = i <= 5 ? Math.round(46 + (243 - 46) * (i / 5)) : Math.round(243 + (231 - 243) * ((i - 5) / 5));
+    const g2 = i <= 5 ? Math.round(204 + (156 - 204) * (i / 5)) : Math.round(156 + (76 - 156) * ((i - 5) / 5));
+    const b2 = i <= 5 ? Math.round(113 + (18 - 113) * (i / 5)) : Math.round(18 + (60 - 18) * ((i - 5) / 5));
+    const segW = barW / 10;
+    doc.setFillColor(r2, g2, b2);
+    doc.rect(M + i * segW, y, segW, barH, 'F');
+  }
+  // Marker
+  const markerX = M + (painVal / 10) * barW;
+  doc.setFillColor(255, 255, 255);
+  doc.circle(markerX, y + barH / 2, 4, 'F');
+  doc.setDrawColor(...teal);
+  doc.circle(markerX, y + barH / 2, 4);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...black);
+  doc.text(String(painVal), markerX, y + barH / 2 + 2.5, { align: 'center' });
+  y += barH + 4;
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...gray);
+  doc.text('0 – Sem dor / No pain', M, y);
+  doc.text('10 – Pior dor / Worst pain', M + cw, y, { align: 'right' });
+  y += 10;
+
+  embedSignature('sig2', 'Assinatura / Signature (Página 2 / Page 2)');
+
+  // ── PAGE 3: MEDICAL HISTORY ──
+  newPage();
+  sectionTitle('HISTÓRICO MÉDICO / MEDICAL HISTORY');
+
+  yesNoBlock(
+    '1. Já fez alguma cirurgia?', 'Have you had any surgery?',
+    radio('cirurgia'),
+    [['O que / What', val('cirurgia_o_que')], ['Quando / When', val('cirurgia_quando')]]
+  );
+  yesNoBlock(
+    '2. Você toma remédio todos os dias?', 'Do you take medication daily?',
+    radio('remedio'),
+    [['Qual / What', val('remedio_qual')], ['Quem receitou / Who prescribed', val('remedio_quem')]]
+  );
+  yesNoBlock(
+    '3. Você tem algum problema de saúde?', 'Do you have any health problems?',
+    radio('saude'),
+    [['Qual / What', val('saude_qual')], ['Desde quando / Since when', val('saude_desde')]]
+  );
+  yesNoBlock(
+    '4. Já sofreu acidente?', 'Any previous accident?',
+    radio('acidente'),
+    [['O que / What', val('acidente_o_que')], ['Quando / When', val('acidente_quando')], ['Tratamento / Treatment', val('acidente_tratamento')]]
+  );
+
+  // Q5 Family history
+  checkY(50);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...teal);
+  doc.text('5. Histórico de saúde / Medical history (you or family)', M, y);
+  y += 7;
+  const familyItems = ['Diabetes', 'Pressão alta / High blood pressure', 'Coração / Heart problems', 'Derrame / Stroke', 'Câncer / Cancer'];
+  familyItems.forEach(item => {
+    const checked = [...document.querySelectorAll('.mh-question:nth-child(5) .check-btn.checked')].map(el => el.dataset.check).includes(item);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...black);
+    doc.text((checked ? '☑' : '☐') + '  ' + item, M + 3, y);
+    y += 7;
+  });
+  y += 3;
+  doc.setDrawColor(220, 220, 220);
+  doc.line(M, y, M + cw, y);
+  y += 6;
+
+  // Q6 Important
+  checkY(55);
+  doc.setFillColor(255, 240, 240);
+  doc.rect(M, y - 2, cw, 8, 'F');
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...red);
+  doc.text('6. ⚠ MUITO IMPORTANTE / VERY IMPORTANT', M + 2, y + 4);
+  y += 10;
+  const importantItems = ['Marca-passo / Pacemaker', 'Grávida / Pregnant', 'Próteses/metais / Metal implants', 'Trombose / Blood clots', 'Câncer/tumor / Cancer/tumor', 'Dormência na pele / Loss of sensation'];
+  importantItems.forEach(item => {
+    const checked = [...document.querySelectorAll('.important-box .check-btn.checked')].map(el => el.dataset.check).includes(item);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', checked ? 'bold' : 'normal');
+    doc.setTextColor(checked ? 192 : 80, checked ? 57 : 80, checked ? 43 : 80);
+    doc.text((checked ? '☑' : '☐') + '  ' + item, M + 3, y);
+    y += 7;
+  });
+
+  // Footer on last page
+  y += 6;
+  doc.setDrawColor(...teal);
+  doc.line(M, y, M + cw, y);
+  y += 5;
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...gray);
+  doc.text('Primecare Chiropractic  |  600 Main Street, Malden MA 02148  |  (857) 410-1800  |  WhatsApp: (857) 346-4532', W / 2, y, { align: 'center' });
+
+  return doc;
+}
+
+// ── SUBMIT ──
+async function submitForm() {
+  const name = val('nomeCompleto') || 'Paciente';
+  const dateStr = val('dataHoje') || new Date().toLocaleDateString();
+  const filename = `Primecare_Intake_${name.replace(/\s+/g,'_')}_${dateStr.replace(/\//g,'-')}.pdf`;
+
+  // Show loading state
+  const btnNext = document.getElementById('btnNext');
+  btnNext.textContent = '⏳ Gerando PDF...';
+  btnNext.disabled = true;
+
+  try {
+    const doc = await generatePDF();
+    const pdfBlob = doc.output('blob');
+    const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
+
+    // Try Web Share API (iOS Safari supports file sharing)
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+      await navigator.share({
+        files: [pdfFile],
+        title: `Intake – ${name}`,
+        text: `Primecare Chiropractic intake form for ${name} on ${dateStr}. Please send to frontdesk@primecare.clinic`
+      });
+    } else {
+      // Fallback: download PDF + open mail
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      alert('Erro ao gerar PDF. Por favor tente novamente. / Error generating PDF. Please try again.');
+    }
+  }
+
+  btnNext.textContent = '✉️ Enviar / Submit';
+  btnNext.disabled = false;
+
+  // Show thank you
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('thankYou').classList.add('active');
+  document.getElementById('navBar').style.display = 'none';
+  document.getElementById('stepTabs').style.display = 'none';
+}
+
+// ── RESTART ──
+function restart() {
+  // Reset form
+  document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"]').forEach(el => el.value = '');
+  document.querySelectorAll('.radio-btn').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('.check-btn').forEach(el => {
+    el.classList.remove('checked');
+    el.querySelector('.icon').textContent = '☐';
+  });
+  document.querySelectorAll('.mh-detail').forEach(el => el.classList.remove('show'));
+  document.querySelectorAll('.body-region').forEach(el => el.classList.remove('marked'));
+  painRegions = [];
+  renderRegionTags();
+  document.getElementById('painSlider').value = 5;
+  updatePain(5);
+  clearSig('sig1');
+  clearSig('sig2');
+  document.getElementById('dataHoje').valueAsDate = new Date();
+
+  // Reset UI
+  document.getElementById('thankYou').classList.remove('active');
+  document.getElementById('navBar').style.display = '';
+  document.getElementById('stepTabs').style.display = '';
+  showPage(0);
+}
+</script>
+</body>
+</html>
