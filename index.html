@@ -20,11 +20,43 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; background: var(--light); font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; color: #333; }
 
+/* ── LANGUAGE OVERLAY ── */
+.lang-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--teal-light); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+}
+.lang-card {
+  background: white; border-radius: 24px; padding: 48px 56px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.14); max-width: 400px; width: 90%;
+  text-align: center;
+}
+.lang-card .logo-circle-big {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--teal); display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 34px; margin: 0 auto 20px;
+}
+.lang-card .card-title { font-size: 22px; font-weight: 800; color: var(--teal-dark); margin-bottom: 6px; }
+.lang-card .card-sub { font-size: 14px; color: #888; margin-bottom: 32px; line-height: 1.5; }
+.lang-select-btn {
+  display: block; width: 100%; padding: 18px 24px; margin-bottom: 14px;
+  border: 2px solid var(--border); border-radius: 14px;
+  font-size: 20px; font-weight: 700; cursor: pointer; background: white;
+  text-align: left; transition: all .15s;
+}
+.lang-select-btn:active, .lang-select-btn:hover { background: var(--teal-light); border-color: var(--teal); color: var(--teal-dark); }
+.lang-select-btn:last-child { margin-bottom: 0; }
+
+/* ── LANGUAGE HIDING ── */
+body.lang-pt .en-only, body.lang-pt .es-only { display: none !important; }
+body.lang-en .pt-only, body.lang-en .es-only { display: none !important; }
+body.lang-es .pt-only, body.lang-es .en-only { display: none !important; }
+
 /* ── HEADER ── */
 header {
   background: white;
   border-bottom: 3px solid var(--teal);
-  padding: 14px 24px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -33,12 +65,22 @@ header {
 }
 .logo-area { display: flex; align-items: center; gap: 12px; }
 .logo-circle {
-  width: 48px; height: 48px; border-radius: 50%;
+  width: 44px; height: 44px; border-radius: 50%;
   background: var(--teal); display: flex; align-items: center; justify-content: center;
-  color: white; font-size: 22px;
+  color: white; font-size: 20px; flex-shrink: 0;
 }
-.clinic-name { font-size: 20px; font-weight: 700; color: var(--teal-dark); line-height: 1.2; }
-.clinic-sub { font-size: 13px; color: var(--gray); }
+.clinic-name { font-size: 18px; font-weight: 700; color: var(--teal-dark); line-height: 1.2; }
+.clinic-sub { font-size: 12px; color: var(--gray); }
+
+.header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.contact-info { text-align: right; font-size: 12px; color: #999; line-height: 1.5; }
+.lang-switcher { display: flex; gap: 6px; }
+.lang-btn {
+  padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700;
+  border: 2px solid var(--border); background: white; cursor: pointer;
+  transition: all .15s;
+}
+.lang-btn.active { background: var(--teal); color: white; border-color: var(--teal); }
 
 /* ── STEP INDICATOR ── */
 .steps {
@@ -46,7 +88,7 @@ header {
   border-bottom: 1px solid #e0e0e0;
 }
 .step-tab {
-  flex: 1; padding: 14px 8px; text-align: center;
+  flex: 1; padding: 12px 8px; text-align: center;
   font-size: 13px; font-weight: 600; color: #999;
   border-bottom: 3px solid transparent;
   cursor: pointer; transition: all .2s;
@@ -73,8 +115,9 @@ header {
 .form-group.medium { flex: 0 0 200px; }
 
 label { font-size: 15px; font-weight: 600; color: var(--gray); }
-label .pt { display: block; color: var(--teal-dark); }
-label .en { display: block; color: #888; font-size: 13px; font-weight: 400; }
+label .pt-only { display: block; color: var(--teal-dark); }
+label .en-only { display: block; color: #888; font-size: 13px; font-weight: 400; }
+label .es-only { display: block; color: #b06000; font-size: 13px; font-weight: 400; }
 
 input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"], textarea, select {
   font-size: 17px; padding: 12px 14px;
@@ -97,7 +140,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--teal); }
 .radio-btn.selected, .check-btn.checked {
   border-color: var(--teal); background: var(--teal-light); color: var(--teal-dark);
 }
-.radio-btn .icon, .check-btn .icon { font-size: 20px; }
+.radio-btn .icon, .check-btn .icon { font-size: 20px; flex-shrink: 0; }
 
 /* ── AUTHORIZATION BOX ── */
 .auth-box {
@@ -152,8 +195,9 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
   padding: 18px; margin-bottom: 16px;
 }
 .mh-q-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
-.mh-q-pt { font-size: 16px; font-weight: 700; color: var(--teal-dark); }
-.mh-q-en { font-size: 14px; color: #888; font-style: italic; }
+.mh-q-main { font-size: 16px; font-weight: 700; color: var(--teal-dark); }
+.mh-q-sub { font-size: 14px; color: #888; font-style: italic; }
+.mh-q-sub2 { font-size: 14px; color: #b06000; font-style: italic; }
 .mh-detail { margin-top: 12px; display: none; }
 .mh-detail.show { display: block; }
 .mh-detail-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
@@ -200,7 +244,25 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
 }
 </style>
 </head>
-<body>
+<body class="lang-pt">
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- LANGUAGE SELECTION OVERLAY                         -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="lang-overlay" id="langOverlay">
+  <div class="lang-card">
+    <div class="logo-circle-big">✚</div>
+    <div class="card-title">Primecare Chiropractic</div>
+    <div class="card-sub">
+      Selecione seu idioma<br>
+      Select your language<br>
+      Seleccione su idioma
+    </div>
+    <button class="lang-select-btn" onclick="selectLanguage('pt')">🇧🇷 &nbsp;Português</button>
+    <button class="lang-select-btn" onclick="selectLanguage('en')">🇺🇸 &nbsp;English</button>
+    <button class="lang-select-btn" onclick="selectLanguage('es')">🇪🇸 &nbsp;Español</button>
+  </div>
+</div>
 
 <header>
   <div class="logo-area">
@@ -210,20 +272,34 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
       <div class="clinic-sub">600 Main Street, Malden, MA 02148</div>
     </div>
   </div>
-  <div style="text-align:right; font-size:13px; color:#999; line-height:1.6;">
-    (857) 410-1800<br>info@primecaremalden.com
+  <div class="header-right">
+    <div class="contact-info">(857) 410-1800<br>info@primecaremalden.com</div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="btnLangPt" onclick="selectLanguage('pt')">🇧🇷 PT</button>
+      <button class="lang-btn" id="btnLangEn" onclick="selectLanguage('en')">🇺🇸 EN</button>
+      <button class="lang-btn" id="btnLangEs" onclick="selectLanguage('es')">🇪🇸 ES</button>
+    </div>
   </div>
 </header>
 
 <div class="steps" id="stepTabs">
   <div class="step-tab active" data-step="0">
-    <span class="step-num">1</span>Informações / Info
+    <span class="step-num">1</span>
+    <span class="pt-only">Informações</span>
+    <span class="en-only">Info</span>
+    <span class="es-only">Información</span>
   </div>
   <div class="step-tab" data-step="1">
-    <span class="step-num">2</span>Dor / Pain
+    <span class="step-num">2</span>
+    <span class="pt-only">Dor</span>
+    <span class="en-only">Pain</span>
+    <span class="es-only">Dolor</span>
   </div>
   <div class="step-tab" data-step="2">
-    <span class="step-num">3</span>Histórico / History
+    <span class="step-num">3</span>
+    <span class="pt-only">Histórico</span>
+    <span class="en-only">History</span>
+    <span class="es-only">Historia</span>
   </div>
 </div>
 
@@ -232,72 +308,129 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="page active" id="page0">
 
-  <p class="section-title" style="margin-top:16px;">Por favor preencha as informações abaixo</p>
+  <p class="section-title" style="margin-top:16px;">
+    <span class="pt-only">Por favor preencha as informações abaixo</span>
+    <span class="en-only">Please fill in the information below</span>
+    <span class="es-only">Por favor complete la información a continuación</span>
+  </p>
 
   <div class="form-row">
     <div class="form-group medium">
-      <label><span class="pt">Data</span><span class="en">Today's Date</span></label>
+      <label>
+        <span class="pt-only">Data de Hoje</span>
+        <span class="en-only">Today's Date</span>
+        <span class="es-only">Fecha de hoy</span>
+      </label>
       <input type="date" id="dataHoje">
     </div>
     <div class="form-group medium">
-      <label><span class="pt">Data de Nascimento</span><span class="en">Date of Birth</span></label>
+      <label>
+        <span class="pt-only">Data de Nascimento</span>
+        <span class="en-only">Date of Birth</span>
+        <span class="es-only">Fecha de nacimiento</span>
+      </label>
       <input type="date" id="dataNasc">
     </div>
   </div>
 
   <div class="form-row">
     <div class="form-group full">
-      <label><span class="pt">Nome Completo</span><span class="en">Full Name</span></label>
-      <input type="text" id="nomeCompleto" placeholder="Nome completo / Full name" autocomplete="name">
+      <label>
+        <span class="pt-only">Nome Completo</span>
+        <span class="en-only">Full Name</span>
+        <span class="es-only">Nombre completo</span>
+      </label>
+      <input type="text" id="nomeCompleto" autocomplete="name"
+        placeholder="Nome / Name / Nombre">
     </div>
   </div>
 
   <div class="form-row">
     <div class="form-group" style="flex:3; min-width:200px;">
-      <label><span class="pt">Endereço</span><span class="en">Address</span></label>
-      <input type="text" id="endereco" placeholder="Rua / Street" autocomplete="street-address">
+      <label>
+        <span class="pt-only">Endereço</span>
+        <span class="en-only">Address</span>
+        <span class="es-only">Dirección</span>
+      </label>
+      <input type="text" id="endereco" autocomplete="street-address"
+        placeholder="Rua / Street / Calle">
     </div>
     <div class="form-group small">
-      <label><span class="pt">Apt</span><span class="en">Apt</span></label>
+      <label>
+        <span class="pt-only">Apt</span>
+        <span class="en-only">Apt</span>
+        <span class="es-only">Apt</span>
+      </label>
       <input type="text" id="apt" placeholder="Apt">
     </div>
   </div>
 
   <div class="form-row">
     <div class="form-group">
-      <label><span class="pt">Cidade</span><span class="en">City</span></label>
-      <input type="text" id="cidade" placeholder="Cidade / City" autocomplete="address-level2">
+      <label>
+        <span class="pt-only">Cidade</span>
+        <span class="en-only">City</span>
+        <span class="es-only">Ciudad</span>
+      </label>
+      <input type="text" id="cidade" autocomplete="address-level2"
+        placeholder="Cidade / City / Ciudad">
     </div>
     <div class="form-group small">
-      <label><span class="pt">Estado</span><span class="en">State</span></label>
+      <label>
+        <span class="pt-only">Estado</span>
+        <span class="en-only">State</span>
+        <span class="es-only">Estado</span>
+      </label>
       <input type="text" id="estado" placeholder="MA" maxlength="2" autocomplete="address-level1">
     </div>
     <div class="form-group small" style="flex: 0 0 120px;">
-      <label><span class="pt">Zip</span><span class="en">ZIP</span></label>
+      <label>
+        <span class="pt-only">Zip</span>
+        <span class="en-only">ZIP</span>
+        <span class="es-only">ZIP</span>
+      </label>
       <input type="text" id="zip" placeholder="00000" maxlength="10" autocomplete="postal-code">
     </div>
   </div>
 
   <div class="form-row">
     <div class="form-group">
-      <label><span class="pt">Tel / Phone</span><span class="en">Phone</span></label>
+      <label>
+        <span class="pt-only">Telefone</span>
+        <span class="en-only">Phone</span>
+        <span class="es-only">Teléfono</span>
+      </label>
       <input type="tel" id="tel" placeholder="(000) 000-0000" autocomplete="tel">
     </div>
     <div class="form-group">
-      <label><span class="pt">Email</span><span class="en">Email</span></label>
+      <label>
+        <span class="pt-only">Email</span>
+        <span class="en-only">Email</span>
+        <span class="es-only">Correo electrónico</span>
+      </label>
       <input type="email" id="email" placeholder="email@exemplo.com" autocomplete="email">
     </div>
   </div>
 
   <div class="form-row">
     <div class="form-group full">
-      <label><span class="pt">Precisa de Intérprete?</span><span class="en">Interpreter needed?</span></label>
+      <label>
+        <span class="pt-only">Precisa de Intérprete?</span>
+        <span class="en-only">Interpreter needed?</span>
+        <span class="es-only">¿Necesita intérprete?</span>
+      </label>
       <div class="radio-group">
         <div class="radio-btn" data-group="interprete" data-val="Sim / Yes" onclick="selectRadio(this)">
-          <span class="icon">🗣️</span> Sim / Yes
+          <span class="icon">🗣️</span>
+          <span class="pt-only">Sim</span>
+          <span class="en-only">Yes</span>
+          <span class="es-only">Sí</span>
         </div>
         <div class="radio-btn" data-group="interprete" data-val="Não / No" onclick="selectRadio(this)">
-          <span class="icon">✓</span> Não / No
+          <span class="icon">✓</span>
+          <span class="pt-only">Não</span>
+          <span class="en-only">No</span>
+          <span class="es-only">No</span>
         </div>
       </div>
     </div>
@@ -305,28 +438,50 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
 
   <div class="form-row">
     <div class="form-group medium">
-      <label><span class="pt">Data do Acidente</span><span class="en">Accident Date</span></label>
+      <label>
+        <span class="pt-only">Data do Acidente</span>
+        <span class="en-only">Accident Date</span>
+        <span class="es-only">Fecha del accidente</span>
+      </label>
       <input type="date" id="dataAcidente">
     </div>
     <div class="form-group medium">
-      <label><span class="pt">Hora do Acidente</span><span class="en">Accident Time</span></label>
+      <label>
+        <span class="pt-only">Hora do Acidente</span>
+        <span class="en-only">Accident Time</span>
+        <span class="es-only">Hora del accidente</span>
+      </label>
       <input type="time" id="horaAcidente">
     </div>
   </div>
 
   <div class="auth-box">
-    <strong>Autorização de Comunicação / Communication Authorization</strong>
-    Eu autorizo a Primecare Chiropractic a entrar em contato comigo por email, mensagem de texto, WhatsApp ou qualquer outra forma de comunicação.<br>
-    <em style="font-size:13px; color:#8a6000;">I authorize Primecare Chiropractic to contact me by email, text message, WhatsApp, or any other form of communication.</em>
+    <strong>
+      <span class="pt-only">Autorização de Comunicação</span>
+      <span class="en-only">Communication Authorization</span>
+      <span class="es-only">Autorización de Comunicación</span>
+    </strong>
+    <span class="pt-only">Eu autorizo a Primecare Chiropractic a entrar em contato comigo por email, mensagem de texto, WhatsApp ou qualquer outra forma de comunicação.</span>
+    <span class="en-only">I authorize Primecare Chiropractic to contact me by email, text message, WhatsApp, or any other form of communication.</span>
+    <span class="es-only">Autorizo a Primecare Chiropractic a contactarme por correo electrónico, mensaje de texto, WhatsApp o cualquier otra forma de comunicación.</span>
   </div>
 
   <div class="sig-wrapper">
-    <div class="sig-label">✍️ Assinatura / Signature</div>
+    <div class="sig-label">
+      ✍️
+      <span class="pt-only">Assinatura</span>
+      <span class="en-only">Signature</span>
+      <span class="es-only">Firma</span>
+    </div>
     <div class="sig-canvas-wrap">
       <canvas class="sig-pad" id="sig1" height="130"></canvas>
       <div class="sig-line"></div>
       <div class="sig-x">✕</div>
-      <button class="sig-clear" onclick="clearSig('sig1')">Limpar / Clear</button>
+      <button class="sig-clear" onclick="clearSig('sig1')">
+        <span class="pt-only">Limpar</span>
+        <span class="en-only">Clear</span>
+        <span class="es-only">Borrar</span>
+      </button>
     </div>
   </div>
 
@@ -337,80 +492,60 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="page" id="page1">
 
-  <p class="section-title" style="margin-top:16px;">Área de Dor / Pain Location</p>
+  <p class="section-title" style="margin-top:16px;">
+    <span class="pt-only">Área de Dor</span>
+    <span class="en-only">Pain Location</span>
+    <span class="es-only">Área de Dolor</span>
+  </p>
 
   <div class="diagram-container">
-    <div class="diagram-title">Use o diagrama abaixo para indicar as áreas onde sente dor.</div>
-    <div class="diagram-hint">Use the diagram to indicate where you feel pain. / Toque nas áreas com dor.</div>
+    <div class="diagram-title">
+      <span class="pt-only">Use o diagrama abaixo para indicar as áreas onde sente dor.</span>
+      <span class="en-only">Tap the diagram to indicate where you feel pain.</span>
+      <span class="es-only">Toque el diagrama para indicar dónde siente dolor.</span>
+    </div>
+    <div class="diagram-hint">
+      <span class="pt-only">Toque nas áreas com dor para marcá-las.</span>
+      <span class="en-only">Tap areas to mark / tap again to unmark.</span>
+      <span class="es-only">Toque las áreas dolorosas para marcarlas.</span>
+    </div>
 
     <!-- Inline SVG body diagram with clickable regions -->
     <svg class="body-svg" viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg" id="bodySvg">
       <!-- Body outline paths (front view) -->
-      <!-- HEAD -->
       <ellipse cx="130" cy="46" rx="32" ry="38" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- NECK -->
       <rect x="118" y="82" width="24" height="20" rx="4" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- TORSO -->
       <path d="M95,102 Q80,115 78,160 L78,230 Q78,240 85,244 L175,244 Q182,240 182,230 L182,160 Q180,115 165,102 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT ARM -->
       <path d="M95,110 Q72,120 65,155 Q58,185 60,215 Q62,225 70,224 Q78,223 80,213 Q78,185 85,155 Q91,130 99,120 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT ARM -->
       <path d="M165,110 Q188,120 195,155 Q202,185 200,215 Q198,225 190,224 Q182,223 180,213 Q182,185 175,155 Q169,130 161,120 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT FOREARM -->
       <path d="M60,215 Q58,230 55,255 Q52,275 54,295 Q58,302 65,300 Q72,298 73,288 Q71,268 74,245 Q76,230 80,213 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT FOREARM -->
       <path d="M200,215 Q202,230 205,255 Q208,275 206,295 Q202,302 195,300 Q188,298 187,288 Q189,268 186,245 Q184,230 180,213 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT HAND -->
       <ellipse cx="61" cy="308" rx="14" ry="18" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT HAND -->
       <ellipse cx="199" cy="308" rx="14" ry="18" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- HIPS -->
       <path d="M85,244 Q78,250 76,265 L84,280 L176,280 L184,265 Q182,250 175,244 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT THIGH -->
       <path d="M84,278 Q78,290 76,330 Q74,360 78,380 Q83,388 93,386 Q103,384 104,374 Q100,354 102,330 Q104,305 108,280 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT THIGH -->
       <path d="M176,278 Q182,290 184,330 Q186,360 182,380 Q177,388 167,386 Q157,384 156,374 Q160,354 158,330 Q156,305 152,280 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT SHIN -->
       <path d="M78,380 Q74,400 75,430 Q76,455 80,468 Q86,474 94,472 Q102,470 104,460 Q102,438 103,415 Q104,395 104,374 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT SHIN -->
       <path d="M182,380 Q186,400 185,430 Q184,455 180,468 Q174,474 166,472 Q158,470 156,460 Q158,438 157,415 Q156,395 156,374 Z" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT FOOT -->
       <ellipse cx="84" cy="476" rx="16" ry="10" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT FOOT -->
       <ellipse cx="176" cy="476" rx="16" ry="10" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
 
       <!-- BACK VIEW -->
-      <!-- HEAD BACK -->
       <ellipse cx="290" cy="46" rx="32" ry="38" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- NECK BACK -->
       <rect x="278" y="82" width="24" height="20" rx="4" fill="#e8d8c8" stroke="#888" stroke-width="1.5"/>
-      <!-- BACK TORSO -->
       <path d="M255,102 Q240,115 238,160 L238,230 Q238,240 245,244 L335,244 Q342,240 342,230 L342,160 Q340,115 325,102 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT ARM BACK -->
       <path d="M255,110 Q232,120 225,155 Q218,185 220,215 Q222,225 230,224 Q238,223 240,213 Q238,185 245,155 Q251,130 259,120 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT ARM BACK -->
       <path d="M325,110 Q348,120 355,155 Q362,185 360,215 Q358,225 350,224 Q342,223 340,213 Q342,185 335,155 Q329,130 321,120 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT FOREARM BACK -->
       <path d="M220,215 Q218,230 215,255 Q212,275 214,295 Q218,302 225,300 Q232,298 233,288 Q231,268 234,245 Q236,230 240,213 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT FOREARM BACK -->
       <path d="M360,215 Q362,230 365,255 Q368,275 366,295 Q362,302 355,300 Q348,298 347,288 Q349,268 346,245 Q344,230 340,213 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT HAND BACK -->
       <ellipse cx="221" cy="308" rx="14" ry="18" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT HAND BACK -->
       <ellipse cx="359" cy="308" rx="14" ry="18" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- HIPS BACK -->
       <path d="M245,244 Q238,250 236,265 L244,280 L336,280 L344,265 Q342,250 335,244 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT THIGH BACK -->
       <path d="M244,278 Q238,290 236,330 Q234,360 238,380 Q243,388 253,386 Q263,384 264,374 Q260,354 262,330 Q264,305 268,280 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT THIGH BACK -->
       <path d="M336,278 Q342,290 344,330 Q346,360 342,380 Q337,388 327,386 Q317,384 316,374 Q320,354 318,330 Q316,305 312,280 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT SHIN BACK -->
       <path d="M238,380 Q234,400 235,430 Q236,455 240,468 Q246,474 254,472 Q262,470 264,460 Q262,438 263,415 Q264,395 264,374 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT SHIN BACK -->
       <path d="M342,380 Q346,400 345,430 Q344,455 340,468 Q334,474 326,472 Q318,470 316,460 Q318,438 317,415 Q316,395 316,374 Z" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- LEFT FOOT BACK -->
       <ellipse cx="244" cy="476" rx="16" ry="10" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
-      <!-- RIGHT FOOT BACK -->
       <ellipse cx="336" cy="476" rx="16" ry="10" fill="#e0cfc0" stroke="#888" stroke-width="1.5"/>
 
       <!-- Labels -->
@@ -419,7 +554,7 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
       <text x="130" y="515" text-anchor="middle" font-size="10" fill="#aaa">◄ ESQ &nbsp;&nbsp; DIR ►</text>
       <text x="290" y="515" text-anchor="middle" font-size="10" fill="#aaa">◄ ESQ &nbsp;&nbsp; DIR ►</text>
 
-      <!-- CLICKABLE PAIN REGIONS (transparent overlays) -->
+      <!-- CLICKABLE PAIN REGIONS -->
       <!-- FRONT -->
       <ellipse class="body-region" data-region="Cabeça / Head" cx="130" cy="46" rx="34" ry="40" onclick="toggleRegion(this)" style="cursor:pointer"/>
       <rect class="body-region" data-region="Pescoço / Neck" x="112" y="78" width="36" height="28" rx="6" onclick="toggleRegion(this)" style="cursor:pointer"/>
@@ -457,33 +592,62 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
 
     <!-- Marked region tags -->
     <div id="markedRegions" style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; min-height:32px;">
-      <span style="color:#aaa; font-size:13px;" id="noRegionHint">Toque no corpo para marcar a dor / Tap the body to mark pain</span>
+      <span style="color:#aaa; font-size:13px;" id="noRegionHint">
+        <span class="pt-only">Toque no corpo para marcar a dor</span>
+        <span class="en-only">Tap the body to mark pain areas</span>
+        <span class="es-only">Toque el cuerpo para marcar el dolor</span>
+      </span>
     </div>
   </div>
 
   <!-- PAIN SCALE -->
   <div class="pain-scale-wrap">
-    <div class="pain-scale-title">Intensidade da Dor / Pain Intensity</div>
-    <div class="pain-scale-sub">Por favor selecione o número que representa sua dor. / Please select the number that represents your pain.</div>
+    <div class="pain-scale-title">
+      <span class="pt-only">Intensidade da Dor</span>
+      <span class="en-only">Pain Intensity</span>
+      <span class="es-only">Intensidad del Dolor</span>
+    </div>
+    <div class="pain-scale-sub">
+      <span class="pt-only">Selecione o número que representa sua dor.</span>
+      <span class="en-only">Select the number that represents your pain level.</span>
+      <span class="es-only">Seleccione el número que representa su dolor.</span>
+    </div>
     <div class="pain-value" id="painValue">5</div>
     <div class="pain-desc" id="painDesc">Dor moderada / Moderate pain</div>
     <input type="range" class="pain-slider" id="painSlider" min="0" max="10" value="5"
       oninput="updatePain(this.value)"
       style="background: linear-gradient(to right, #2ecc71 0%, #f39c12 50%, #e74c3c 100%)">
     <div class="pain-labels">
-      <span>0 – Sem dor / No pain</span>
-      <span>10 – Pior dor / Worst pain</span>
+      <span>
+        <span class="pt-only">0 – Sem dor</span>
+        <span class="en-only">0 – No pain</span>
+        <span class="es-only">0 – Sin dolor</span>
+      </span>
+      <span>
+        <span class="pt-only">10 – Pior dor</span>
+        <span class="en-only">10 – Worst pain</span>
+        <span class="es-only">10 – Peor dolor</span>
+      </span>
     </div>
   </div>
 
   <!-- Signature 2 -->
   <div class="sig-wrapper">
-    <div class="sig-label">✍️ Assinatura / Signature</div>
+    <div class="sig-label">
+      ✍️
+      <span class="pt-only">Assinatura</span>
+      <span class="en-only">Signature</span>
+      <span class="es-only">Firma</span>
+    </div>
     <div class="sig-canvas-wrap">
       <canvas class="sig-pad" id="sig2" height="130"></canvas>
       <div class="sig-line"></div>
       <div class="sig-x">✕</div>
-      <button class="sig-clear" onclick="clearSig('sig2')">Limpar / Clear</button>
+      <button class="sig-clear" onclick="clearSig('sig2')">
+        <span class="pt-only">Limpar</span>
+        <span class="en-only">Clear</span>
+        <span class="es-only">Borrar</span>
+      </button>
     </div>
   </div>
 
@@ -494,28 +658,45 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
 <!-- ═══════════════════════════════════════════════════ -->
 <div class="page" id="page2">
 
-  <p class="section-title" style="margin-top:16px;">Histórico Médico / Medical History</p>
+  <p class="section-title" style="margin-top:16px;">
+    <span class="pt-only">Histórico Médico</span>
+    <span class="en-only">Medical History</span>
+    <span class="es-only">Historia Médica</span>
+  </p>
 
   <!-- Q1 Surgery -->
   <div class="mh-question">
     <div class="mh-q-header">
       <div>
-        <div class="mh-q-pt">1. Já fez alguma cirurgia? <small style="font-weight:400">(Ex: cesárea, joelho, coluna)</small></div>
-        <div class="mh-q-en">Have you had any surgery? (Ex: C-section, knee, back)</div>
+        <div class="mh-q-main pt-only">1. Já fez alguma cirurgia? <small style="font-weight:400">(Ex: cesárea, joelho, coluna)</small></div>
+        <div class="mh-q-sub en-only">Have you had any surgery? (Ex: C-section, knee, back)</div>
+        <div class="mh-q-sub2 es-only">¿Ha tenido alguna cirugía? (Ej: cesárea, rodilla, columna)</div>
       </div>
     </div>
     <div class="radio-group" style="margin-top:12px;">
       <div class="radio-btn" data-group="cirurgia" data-val="Sim" onclick="selectRadioMH(this,'cirurgiaDetail')">
-        <span class="icon">✓</span> Sim / Yes
+        <span class="icon">✓</span>
+        <span class="pt-only">Sim</span><span class="en-only">Yes</span><span class="es-only">Sí</span>
       </div>
       <div class="radio-btn" data-group="cirurgia" data-val="Não" onclick="selectRadioMH(this,null)">
-        <span class="icon">✕</span> Não / No
+        <span class="icon">✕</span>
+        <span class="pt-only">Não</span><span class="en-only">No</span><span class="es-only">No</span>
       </div>
     </div>
     <div class="mh-detail" id="cirurgiaDetail">
       <div class="mh-detail-row">
-        <div class="form-group"><label>O que / What</label><input type="text" id="cirurgia_o_que"></div>
-        <div class="form-group"><label>Quando / When</label><input type="text" id="cirurgia_quando"></div>
+        <div class="form-group">
+          <label>
+            <span class="pt-only">O que</span><span class="en-only">What type</span><span class="es-only">¿Qué tipo?</span>
+          </label>
+          <input type="text" id="cirurgia_o_que">
+        </div>
+        <div class="form-group">
+          <label>
+            <span class="pt-only">Quando</span><span class="en-only">When</span><span class="es-only">¿Cuándo?</span>
+          </label>
+          <input type="text" id="cirurgia_quando">
+        </div>
       </div>
     </div>
   </div>
@@ -524,22 +705,35 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
   <div class="mh-question">
     <div class="mh-q-header">
       <div>
-        <div class="mh-q-pt">2. Você toma remédio todos os dias? <small style="font-weight:400">(Ex: pressão, diabetes, ansiedade)</small></div>
-        <div class="mh-q-en">Do you take medication daily? (Ex: blood pressure, diabetes, anxiety)</div>
+        <div class="mh-q-main pt-only">2. Você toma remédio todos os dias? <small style="font-weight:400">(Ex: pressão, diabetes, ansiedade)</small></div>
+        <div class="mh-q-sub en-only">Do you take medication daily? (Ex: blood pressure, diabetes, anxiety)</div>
+        <div class="mh-q-sub2 es-only">¿Toma medicamentos a diario? (Ej: presión, diabetes, ansiedad)</div>
       </div>
     </div>
     <div class="radio-group" style="margin-top:12px;">
       <div class="radio-btn" data-group="remedio" data-val="Sim" onclick="selectRadioMH(this,'remedioDetail')">
-        <span class="icon">✓</span> Sim / Yes
+        <span class="icon">✓</span>
+        <span class="pt-only">Sim</span><span class="en-only">Yes</span><span class="es-only">Sí</span>
       </div>
       <div class="radio-btn" data-group="remedio" data-val="Não" onclick="selectRadioMH(this,null)">
-        <span class="icon">✕</span> Não / No
+        <span class="icon">✕</span>
+        <span class="pt-only">Não</span><span class="en-only">No</span><span class="es-only">No</span>
       </div>
     </div>
     <div class="mh-detail" id="remedioDetail">
       <div class="mh-detail-row">
-        <div class="form-group"><label>Qual / What</label><input type="text" id="remedio_qual"></div>
-        <div class="form-group"><label>Quem receitou / Who prescribed</label><input type="text" id="remedio_quem"></div>
+        <div class="form-group">
+          <label>
+            <span class="pt-only">Qual</span><span class="en-only">Which medication</span><span class="es-only">¿Cuál?</span>
+          </label>
+          <input type="text" id="remedio_qual">
+        </div>
+        <div class="form-group">
+          <label>
+            <span class="pt-only">Quem receitou</span><span class="en-only">Who prescribed</span><span class="es-only">¿Quién lo recetó?</span>
+          </label>
+          <input type="text" id="remedio_quem">
+        </div>
       </div>
     </div>
   </div>
@@ -548,22 +742,35 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
   <div class="mh-question">
     <div class="mh-q-header">
       <div>
-        <div class="mh-q-pt">3. Você tem algum problema de saúde? <small style="font-weight:400">(Ex: coração, ansiedade)</small></div>
-        <div class="mh-q-en">Do you have any health problems? (Ex: heart, pain, anxiety)</div>
+        <div class="mh-q-main pt-only">3. Você tem algum problema de saúde? <small style="font-weight:400">(Ex: coração, ansiedade)</small></div>
+        <div class="mh-q-sub en-only">Do you have any health problems? (Ex: heart, anxiety)</div>
+        <div class="mh-q-sub2 es-only">¿Tiene algún problema de salud? (Ej: corazón, ansiedad)</div>
       </div>
     </div>
     <div class="radio-group" style="margin-top:12px;">
       <div class="radio-btn" data-group="saude" data-val="Sim" onclick="selectRadioMH(this,'saudeDetail')">
-        <span class="icon">✓</span> Sim / Yes
+        <span class="icon">✓</span>
+        <span class="pt-only">Sim</span><span class="en-only">Yes</span><span class="es-only">Sí</span>
       </div>
       <div class="radio-btn" data-group="saude" data-val="Não" onclick="selectRadioMH(this,null)">
-        <span class="icon">✕</span> Não / No
+        <span class="icon">✕</span>
+        <span class="pt-only">Não</span><span class="en-only">No</span><span class="es-only">No</span>
       </div>
     </div>
     <div class="mh-detail" id="saudeDetail">
       <div class="mh-detail-row">
-        <div class="form-group"><label>Qual / What</label><input type="text" id="saude_qual"></div>
-        <div class="form-group"><label>Desde quando / Since when</label><input type="text" id="saude_desde"></div>
+        <div class="form-group">
+          <label>
+            <span class="pt-only">Qual</span><span class="en-only">Which condition</span><span class="es-only">¿Cuál?</span>
+          </label>
+          <input type="text" id="saude_qual">
+        </div>
+        <div class="form-group">
+          <label>
+            <span class="pt-only">Desde quando</span><span class="en-only">Since when</span><span class="es-only">¿Desde cuándo?</span>
+          </label>
+          <input type="text" id="saude_desde">
+        </div>
       </div>
     </div>
   </div>
@@ -572,73 +779,130 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
   <div class="mh-question">
     <div class="mh-q-header">
       <div>
-        <div class="mh-q-pt">4. Já sofreu acidente? <small style="font-weight:400">(Ex: carro, queda, trabalho)</small></div>
-        <div class="mh-q-en">Any previous accident? (Ex: car, fall, work)</div>
+        <div class="mh-q-main pt-only">4. Já sofreu acidente? <small style="font-weight:400">(Ex: carro, queda, trabalho)</small></div>
+        <div class="mh-q-sub en-only">Any previous accident? (Ex: car, fall, work)</div>
+        <div class="mh-q-sub2 es-only">¿Ha sufrido algún accidente? (Ej: auto, caída, trabajo)</div>
       </div>
     </div>
     <div class="radio-group" style="margin-top:12px;">
       <div class="radio-btn" data-group="acidente" data-val="Sim" onclick="selectRadioMH(this,'acidenteDetail')">
-        <span class="icon">✓</span> Sim / Yes
+        <span class="icon">✓</span>
+        <span class="pt-only">Sim</span><span class="en-only">Yes</span><span class="es-only">Sí</span>
       </div>
       <div class="radio-btn" data-group="acidente" data-val="Não" onclick="selectRadioMH(this,null)">
-        <span class="icon">✕</span> Não / No
+        <span class="icon">✕</span>
+        <span class="pt-only">Não</span><span class="en-only">No</span><span class="es-only">No</span>
       </div>
     </div>
     <div class="mh-detail" id="acidenteDetail">
       <div class="mh-detail-row">
-        <div class="form-group"><label>O que / What</label><input type="text" id="acidente_o_que"></div>
-        <div class="form-group"><label>Quando / When</label><input type="text" id="acidente_quando"></div>
-        <div class="form-group"><label>Tratamento / Treatment</label><input type="text" id="acidente_tratamento"></div>
+        <div class="form-group">
+          <label>
+            <span class="pt-only">O que</span><span class="en-only">What happened</span><span class="es-only">¿Qué pasó?</span>
+          </label>
+          <input type="text" id="acidente_o_que">
+        </div>
+        <div class="form-group">
+          <label>
+            <span class="pt-only">Quando</span><span class="en-only">When</span><span class="es-only">¿Cuándo?</span>
+          </label>
+          <input type="text" id="acidente_quando">
+        </div>
+        <div class="form-group">
+          <label>
+            <span class="pt-only">Tratamento</span><span class="en-only">Treatment received</span><span class="es-only">¿Tratamiento?</span>
+          </label>
+          <input type="text" id="acidente_tratamento">
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Q5 Family History -->
   <div class="mh-question">
-    <div class="mh-q-pt" style="margin-bottom:12px;">5. Histórico de saúde (você ou seus pais) / Medical history (you or family)</div>
+    <div class="mh-q-main pt-only" style="margin-bottom:12px;">5. Histórico de saúde (você ou sua família)</div>
+    <div class="mh-q-sub en-only" style="margin-bottom:12px;">Medical history (you or family)</div>
+    <div class="mh-q-sub2 es-only" style="margin-bottom:12px;">Historia médica (usted o su familia)</div>
     <div class="check-grid">
       <div class="check-btn" data-check="Diabetes" onclick="toggleCheck(this)">
         <span class="icon">☐</span> Diabetes
       </div>
-      <div class="check-btn" data-check="Pressão alta / High blood pressure" onclick="toggleCheck(this)">
-        <span class="icon">☐</span> Pressão alta / High BP
+      <div class="check-btn" data-check="Pressão alta / High blood pressure / Presión alta" onclick="toggleCheck(this)">
+        <span class="icon">☐</span>
+        <span class="pt-only">Pressão alta</span>
+        <span class="en-only">High blood pressure</span>
+        <span class="es-only">Presión alta</span>
       </div>
-      <div class="check-btn" data-check="Coração / Heart problems" onclick="toggleCheck(this)">
-        <span class="icon">☐</span> Coração / Heart
+      <div class="check-btn" data-check="Coração / Heart problems / Problemas del corazón" onclick="toggleCheck(this)">
+        <span class="icon">☐</span>
+        <span class="pt-only">Coração</span>
+        <span class="en-only">Heart problems</span>
+        <span class="es-only">Corazón</span>
       </div>
-      <div class="check-btn" data-check="Derrame / Stroke" onclick="toggleCheck(this)">
-        <span class="icon">☐</span> Derrame / Stroke
+      <div class="check-btn" data-check="Derrame / Stroke / Derrame cerebral" onclick="toggleCheck(this)">
+        <span class="icon">☐</span>
+        <span class="pt-only">Derrame</span>
+        <span class="en-only">Stroke</span>
+        <span class="es-only">Derrame cerebral</span>
       </div>
-      <div class="check-btn" data-check="Câncer / Cancer" onclick="toggleCheck(this)">
-        <span class="icon">☐</span> Câncer / Cancer
+      <div class="check-btn" data-check="Câncer / Cancer / Cáncer" onclick="toggleCheck(this)">
+        <span class="icon">☐</span>
+        <span class="pt-only">Câncer</span>
+        <span class="en-only">Cancer</span>
+        <span class="es-only">Cáncer</span>
       </div>
     </div>
   </div>
 
   <!-- Q6 IMPORTANT -->
   <div class="important-box">
-    <div class="important-title">⚠️ 6. MUITO IMPORTANTE / VERY IMPORTANT</div>
+    <div class="important-title">
+      ⚠️
+      <span class="pt-only">6. MUITO IMPORTANTE</span>
+      <span class="en-only">6. VERY IMPORTANT</span>
+      <span class="es-only">6. MUY IMPORTANTE</span>
+    </div>
     <div style="font-size:14px; color:#c0392b; margin-bottom:12px;">
-      Marque se você tem alguma dessas condições: / Check if you have any of these conditions:
+      <span class="pt-only">Marque se você tem alguma dessas condições:</span>
+      <span class="en-only">Check if you have any of these conditions:</span>
+      <span class="es-only">Marque si tiene alguna de estas condiciones:</span>
     </div>
     <div class="check-grid">
-      <div class="check-btn" data-check="Marca-passo / Pacemaker" onclick="toggleCheck(this)" style="border-color:#f08080;">
-        <span class="icon">☐</span> Marca-passo / Pacemaker
+      <div class="check-btn" data-check="Marca-passo / Pacemaker / Marcapasos" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span>
+        <span class="pt-only">Marca-passo</span>
+        <span class="en-only">Pacemaker</span>
+        <span class="es-only">Marcapasos</span>
       </div>
-      <div class="check-btn" data-check="Grávida / Pregnant" onclick="toggleCheck(this)" style="border-color:#f08080;">
-        <span class="icon">☐</span> Grávida / Pregnant
+      <div class="check-btn" data-check="Grávida / Pregnant / Embarazada" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span>
+        <span class="pt-only">Grávida</span>
+        <span class="en-only">Pregnant</span>
+        <span class="es-only">Embarazada</span>
       </div>
-      <div class="check-btn" data-check="Próteses/metais / Metal implants" onclick="toggleCheck(this)" style="border-color:#f08080;">
-        <span class="icon">☐</span> Próteses/metais / Metal implants
+      <div class="check-btn" data-check="Próteses/metais / Metal implants / Prótesis/metales" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span>
+        <span class="pt-only">Próteses/metais</span>
+        <span class="en-only">Metal implants</span>
+        <span class="es-only">Prótesis/metales</span>
       </div>
-      <div class="check-btn" data-check="Trombose / Blood clots" onclick="toggleCheck(this)" style="border-color:#f08080;">
-        <span class="icon">☐</span> Trombose / Blood clots
+      <div class="check-btn" data-check="Trombose / Blood clots / Trombosis" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span>
+        <span class="pt-only">Trombose</span>
+        <span class="en-only">Blood clots</span>
+        <span class="es-only">Trombosis</span>
       </div>
-      <div class="check-btn" data-check="Câncer/tumor / Cancer/tumor" onclick="toggleCheck(this)" style="border-color:#f08080;">
-        <span class="icon">☐</span> Câncer/tumor
+      <div class="check-btn" data-check="Câncer/tumor / Cancer/tumor / Cáncer/tumor" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span>
+        <span class="pt-only">Câncer/tumor</span>
+        <span class="en-only">Cancer/tumor</span>
+        <span class="es-only">Cáncer/tumor</span>
       </div>
-      <div class="check-btn" data-check="Dormência na pele / Loss of sensation" onclick="toggleCheck(this)" style="border-color:#f08080;">
-        <span class="icon">☐</span> Dormência / Loss of sensation
+      <div class="check-btn" data-check="Dormência / Loss of sensation / Entumecimiento" onclick="toggleCheck(this)" style="border-color:#f08080;">
+        <span class="icon">☐</span>
+        <span class="pt-only">Dormência na pele</span>
+        <span class="en-only">Loss of sensation</span>
+        <span class="es-only">Entumecimiento</span>
       </div>
     </div>
   </div>
@@ -648,21 +912,49 @@ canvas.sig-pad { display: block; touch-action: none; cursor: crosshair; width: 1
 <!-- THANK YOU -->
 <div class="thankyou" id="thankYou">
   <div class="ty-icon">✅</div>
-  <div class="ty-title">Obrigado! / Thank You!</div>
-  <div class="ty-sub">
-    Suas informações foram enviadas para a equipe da Primecare Chiropractic.<br>
-    <em style="font-size:14px;">Your information has been sent to the Primecare Chiropractic team.</em><br><br>
-    Por favor entregue o iPad à recepção.<br>
-    <em style="font-size:14px;">Please return the iPad to the front desk.</em>
+  <div class="ty-title">
+    <span class="pt-only">Obrigado!</span>
+    <span class="en-only">Thank You!</span>
+    <span class="es-only">¡Gracias!</span>
   </div>
-  <button class="btn-restart" onclick="restart()">Novo Paciente / New Patient</button>
+  <div class="ty-sub">
+    <span class="pt-only">
+      Suas informações foram enviadas para a equipe da Primecare Chiropractic.<br><br>
+      Por favor entregue o iPad à recepção.
+    </span>
+    <span class="en-only">
+      Your information has been sent to the Primecare Chiropractic team.<br><br>
+      Please return the iPad to the front desk.
+    </span>
+    <span class="es-only">
+      Su información ha sido enviada al equipo de Primecare Chiropractic.<br><br>
+      Por favor devuelva el iPad a la recepción.
+    </span>
+  </div>
+  <button class="btn-restart" onclick="restart()">
+    <span class="pt-only">Novo Paciente</span>
+    <span class="en-only">New Patient</span>
+    <span class="es-only">Nuevo Paciente</span>
+  </button>
 </div>
 
 <!-- NAVIGATION -->
 <div class="nav-bar" id="navBar">
-  <button class="btn btn-back" id="btnBack" onclick="goBack()" disabled>← Voltar / Back</button>
-  <div class="progress-text" id="progressText">Passo 1 de 3 / Step 1 of 3</div>
-  <button class="btn btn-next" id="btnNext" onclick="goNext()">Próximo / Next →</button>
+  <button class="btn btn-back" id="btnBack" onclick="goBack()" disabled>
+    <span class="pt-only">← Voltar</span>
+    <span class="en-only">← Back</span>
+    <span class="es-only">← Atrás</span>
+  </button>
+  <div class="progress-text" id="progressText">
+    <span class="pt-only">Passo 1 de 3</span>
+    <span class="en-only">Step 1 of 3</span>
+    <span class="es-only">Paso 1 de 3</span>
+  </div>
+  <button class="btn btn-next" id="btnNext" onclick="goNext()">
+    <span class="pt-only">Próximo →</span>
+    <span class="en-only">Next →</span>
+    <span class="es-only">Siguiente →</span>
+  </button>
 </div>
 
 <script>
@@ -671,6 +963,26 @@ let currentPage = 0;
 const totalPages = 3;
 let painRegions = [];
 const signatures = {};
+let currentLang = 'pt';
+
+// ── LANGUAGE ──
+function selectLanguage(lang) {
+  document.getElementById('langOverlay').style.display = 'none';
+  setLang(lang);
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  // Remove all lang classes and add the new one
+  document.body.classList.remove('lang-pt', 'lang-en', 'lang-es');
+  document.body.classList.add('lang-' + lang);
+  // Update header buttons
+  document.getElementById('btnLangPt').classList.toggle('active', lang === 'pt');
+  document.getElementById('btnLangEn').classList.toggle('active', lang === 'en');
+  document.getElementById('btnLangEs').classList.toggle('active', lang === 'es');
+  // Refresh pain description
+  updatePain(document.getElementById('painSlider').value);
+}
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
@@ -714,7 +1026,6 @@ function initSig(id) {
 
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
     if (e.touches) {
       return { x: (e.touches[0].clientX - rect.left), y: (e.touches[0].clientY - rect.top) };
     }
@@ -775,7 +1086,6 @@ function selectRadioMH(el, detailId) {
   const group = el.dataset.group;
   document.querySelectorAll(`.radio-btn[data-group="${group}"]`).forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
-  // Hide all details for group first
   document.querySelectorAll('.mh-detail').forEach(d => {
     if (d.id && d.id.startsWith(group)) d.classList.remove('show');
   });
@@ -820,22 +1130,28 @@ function renderRegionTags() {
 }
 
 // ── PAIN SCALE ──
-const painDescs = [
-  'Sem dor / No pain',
-  'Dor mínima / Minimal pain',
-  'Dor leve / Mild pain',
-  'Dor leve-moderada / Mild-moderate pain',
-  'Dor moderada / Moderate pain',
-  'Dor moderada / Moderate pain',
-  'Dor moderada-forte / Moderate-severe pain',
-  'Dor forte / Severe pain',
-  'Dor muito forte / Very severe pain',
-  'Dor quase insuportável / Nearly unbearable',
-  'Pior dor possível / Worst possible pain'
-];
+const painDescs = {
+  pt: [
+    'Sem dor','Dor mínima','Dor leve','Dor leve-moderada','Dor moderada',
+    'Dor moderada','Dor moderada-forte','Dor forte','Dor muito forte',
+    'Dor quase insuportável','Pior dor possível'
+  ],
+  en: [
+    'No pain','Minimal pain','Mild pain','Mild-moderate pain','Moderate pain',
+    'Moderate pain','Moderate-severe pain','Severe pain','Very severe pain',
+    'Nearly unbearable','Worst possible pain'
+  ],
+  es: [
+    'Sin dolor','Dolor mínimo','Dolor leve','Dolor leve-moderado','Dolor moderado',
+    'Dolor moderado','Dolor moderado-intenso','Dolor intenso','Dolor muy intenso',
+    'Casi insoportable','Peor dolor posible'
+  ]
+};
+
 function updatePain(v) {
   document.getElementById('painValue').textContent = v;
-  document.getElementById('painDesc').textContent = painDescs[parseInt(v)];
+  const lang = currentLang || 'pt';
+  document.getElementById('painDesc').textContent = painDescs[lang][parseInt(v)];
   const pct = v / 10;
   const r1 = [46,204,113], r2 = [243,156,18], r3 = [231,76,60];
   let r,g,b;
@@ -875,16 +1191,30 @@ function showPage(n) {
   document.getElementById('page' + n).classList.add('active');
   currentPage = n;
   document.getElementById('btnBack').disabled = n === 0;
+
   const isLast = n === totalPages - 1;
   const btnNext = document.getElementById('btnNext');
-  btnNext.textContent = isLast ? '✉️ Enviar / Submit' : 'Próximo / Next →';
-  btnNext.className = isLast ? 'btn btn-submit' : 'btn btn-next';
-  document.getElementById('progressText').textContent = `Passo ${n+1} de ${totalPages} / Step ${n+1} of ${totalPages}`;
-  window.scrollTo(0, 0);
+  const submitLabels = { pt: '✉️ Enviar', en: '✉️ Submit', es: '✉️ Enviar' };
+  const nextLabels   = { pt: 'Próximo →', en: 'Next →', es: 'Siguiente →' };
+  const lang = currentLang || 'pt';
 
-  if (n === 1) {
-    setTimeout(resizeAllSigs, 50);
+  if (isLast) {
+    btnNext.innerHTML = submitLabels[lang];
+    btnNext.className = 'btn btn-submit';
+  } else {
+    btnNext.innerHTML = `<span class="pt-only">Próximo →</span><span class="en-only">Next →</span><span class="es-only">Siguiente →</span>`;
+    btnNext.className = 'btn btn-next';
   }
+
+  const stepLabels = {
+    pt: `Passo ${n+1} de ${totalPages}`,
+    en: `Step ${n+1} of ${totalPages}`,
+    es: `Paso ${n+1} de ${totalPages}`
+  };
+  document.getElementById('progressText').textContent = stepLabels[lang];
+
+  window.scrollTo(0, 0);
+  if (n === 1) setTimeout(resizeAllSigs, 50);
 }
 
 // ── COLLECT DATA ──
@@ -901,10 +1231,53 @@ function checks() {
   document.querySelectorAll('.check-btn.checked').forEach(el => checked.push(el.dataset.check));
   return checked.length ? checked.join(', ') : 'Nenhum / None';
 }
-function importantChecks() {
-  const checked = [];
-  document.querySelectorAll('.important-box .check-btn.checked').forEach(el => checked.push(el.dataset.check));
-  return checked.length ? checked.join(', ') : 'Nenhum / None';
+
+// ── SVG TO IMAGE (for PDF body diagram) ──
+async function getSvgDataURL() {
+  const svg = document.getElementById('bodySvg');
+  const clone = svg.cloneNode(true);
+
+  // Inline the marked state as attributes (CSS classes won't render via img src)
+  clone.querySelectorAll('.body-region').forEach(el => {
+    const region = el.dataset.region;
+    const isMarked = svg.querySelector(`[data-region="${region}"]`)?.classList.contains('marked');
+    if (isMarked) {
+      el.setAttribute('fill', 'rgba(209,0,0,0.25)');
+      el.setAttribute('stroke', '#d10000');
+      el.setAttribute('stroke-width', '1.5');
+    } else {
+      el.setAttribute('fill', 'transparent');
+      el.setAttribute('stroke', 'transparent');
+    }
+    // Remove class attributes that won't be styled
+    el.removeAttribute('class');
+    el.removeAttribute('onclick');
+    el.style.cursor = '';
+  });
+
+  const svgData = new XMLSerializer().serializeToString(clone);
+  const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 800;   // 400 * 2 for quality
+      canvas.height = 1040; // 520 * 2 for quality
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(null);
+    };
+    img.src = url;
+  });
 }
 
 // ── PDF GENERATION ──
@@ -931,7 +1304,6 @@ async function generatePDF() {
   }
 
   function drawHeader() {
-    // Teal banner
     doc.setFillColor(...teal);
     doc.rect(0, 0, W, 18, 'F');
     doc.setTextColor(255, 255, 255);
@@ -966,7 +1338,6 @@ async function generatePDF() {
     doc.setFontSize(10);
     const displayVal = value || '—';
     doc.text(displayVal, x, rowY + 5, { maxWidth: colW - 2 });
-    // underline
     doc.setDrawColor(200, 200, 200);
     doc.line(x, rowY + 6.5, x + colW - 2, rowY + 6.5);
   }
@@ -994,15 +1365,6 @@ async function generatePDF() {
     y += 14;
   }
 
-  function checkboxRow(label, checked) {
-    const box = checked ? '☑' : '☐';
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...black);
-    doc.text(`${box}  ${label}`, M + 3, y);
-    y += 7;
-  }
-
   function yesNoBlock(qPt, qEn, answer, details) {
     checkY(28);
     doc.setFontSize(10);
@@ -1015,7 +1377,6 @@ async function generatePDF() {
     doc.setTextColor(...gray);
     doc.text(qEn, M, y);
     y += 5;
-    // Answer pill
     const ans = answer || '—';
     const isYes = ans.toLowerCase().includes('sim') || ans.toLowerCase().includes('yes');
     doc.setFillColor(isYes ? 220 : 240, isYes ? 255 : 240, isYes ? 220 : 240);
@@ -1072,7 +1433,7 @@ async function generatePDF() {
       doc.setFont('helvetica', 'italic');
       doc.setFontSize(8);
       doc.setTextColor(180, 180, 180);
-      doc.text('(assinatura / signature)', M + 4, y + 10);
+      doc.text('(assinatura / signature / firma)', M + 4, y + 10);
       y += 21;
     }
   }
@@ -1080,21 +1441,20 @@ async function generatePDF() {
   // ── PAGE 1: HEADER + PATIENT INFO ──
   drawHeader();
 
-  // Date stamp
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...gray);
-  doc.text(`Gerado em / Generated: ${new Date().toLocaleString()}`, W - M, y, { align: 'right' });
+  doc.text(`Gerado / Generated: ${new Date().toLocaleString()}`, W - M, y, { align: 'right' });
   y += 6;
 
-  sectionTitle('INFORMAÇÕES DO PACIENTE / PATIENT INFORMATION');
-  twoFields('Data / Date', val('dataHoje'), 'Data de Nascimento / DOB', val('dataNasc'));
-  field('Nome Completo / Full Name', val('nomeCompleto'), M, cw);
-  twoFields('Endereço / Address', val('endereco'), 'Apt', val('apt'));
-  threeFields('Cidade / City', val('cidade'), 'Estado / State', val('estado'), 'ZIP', val('zip'));
-  twoFields('Telefone / Phone', val('tel'), 'Email', val('email'));
-  twoFields('Intérprete / Interpreter', radio('interprete'), 'Data do Acidente / Accident Date', val('dataAcidente'));
-  field('Hora do Acidente / Accident Time', val('horaAcidente'), M, cw / 2);
+  sectionTitle('INFORMAÇÕES DO PACIENTE / PATIENT INFORMATION / INFORMACIÓN DEL PACIENTE');
+  twoFields('Data / Date / Fecha', val('dataHoje'), 'Data de Nascimento / DOB / Fecha de nac.', val('dataNasc'));
+  field('Nome Completo / Full Name / Nombre completo', val('nomeCompleto'), M, cw);
+  twoFields('Endereço / Address / Dirección', val('endereco'), 'Apt', val('apt'));
+  threeFields('Cidade / City / Ciudad', val('cidade'), 'Estado / State', val('estado'), 'ZIP', val('zip'));
+  twoFields('Telefone / Phone / Teléfono', val('tel'), 'Email', val('email'));
+  twoFields('Intérprete / Interpreter', radio('interprete'), 'Data do Acidente / Accident Date / Fecha', val('dataAcidente'));
+  field('Hora do Acidente / Accident Time / Hora del accidente', val('horaAcidente'), M, cw / 2);
 
   // Authorization
   checkY(24);
@@ -1105,7 +1465,7 @@ async function generatePDF() {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(138, 96, 0);
-  doc.text('AUTORIZAÇÃO / AUTHORIZATION', M + 3, y + 5);
+  doc.text('AUTORIZAÇÃO / AUTHORIZATION / AUTORIZACIÓN', M + 3, y + 5);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   const authText = 'Eu autorizo a Primecare Chiropractic a entrar em contato comigo por email, mensagem de texto, WhatsApp ou qualquer outra forma de comunicação. / I authorize Primecare Chiropractic to contact me by email, text, WhatsApp or any other form of communication.';
@@ -1113,21 +1473,35 @@ async function generatePDF() {
   doc.text(authLines, M + 3, y + 11);
   y += 23;
 
-  embedSignature('sig1', 'Assinatura / Signature (Página 1 / Page 1)');
+  embedSignature('sig1', 'Assinatura / Signature / Firma (Página 1 / Page 1)');
 
   // ── PAGE 2: PAIN ──
   newPage();
-  sectionTitle('DOR / PAIN INFORMATION');
+  sectionTitle('DOR / PAIN INFORMATION / INFORMACIÓN DE DOLOR');
 
-  // Pain areas
+  // Capture and embed body diagram
+  const bodyImgData = await getSvgDataURL();
+  if (bodyImgData) {
+    checkY(110);
+    const bodyImgW = 100; // mm
+    const bodyImgH = bodyImgW * (520 / 400); // 130mm
+    const bodyX = M + (cw - bodyImgW) / 2;
+    doc.setDrawColor(...teal);
+    doc.rect(bodyX - 1, y - 1, bodyImgW + 2, bodyImgH + 2);
+    doc.addImage(bodyImgData, 'PNG', bodyX, y, bodyImgW, bodyImgH);
+    y += bodyImgH + 6;
+  }
+
+  // Pain areas text list
   checkY(20);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...gray);
-  doc.text('Áreas com dor / Pain areas indicated:', M, y);
+  doc.text('Áreas com dor / Pain areas / Áreas de dolor:', M, y);
   y += 6;
   if (painRegions.length) {
     painRegions.forEach(r => {
+      checkY(10);
       doc.setFillColor(255, 224, 224);
       doc.roundedRect(M, y, cw, 7, 2, 2, 'F');
       doc.setFont('helvetica', 'normal');
@@ -1135,13 +1509,12 @@ async function generatePDF() {
       doc.setTextColor(192, 0, 0);
       doc.text('● ' + r, M + 3, y + 4.8);
       y += 9;
-      checkY(10);
     });
   } else {
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(9);
     doc.setTextColor(180, 180, 180);
-    doc.text('Nenhuma área indicada / No areas indicated', M + 3, y);
+    doc.text('Nenhuma área indicada / No areas indicated / Ninguna área indicada', M + 3, y);
     y += 8;
   }
   y += 4;
@@ -1152,13 +1525,11 @@ async function generatePDF() {
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...gray);
-  doc.text('Intensidade da dor / Pain intensity:', M, y);
+  doc.text('Intensidade da dor / Pain intensity / Intensidad del dolor:', M, y);
   y += 5;
 
-  // Draw scale bar
   const barW = cw, barH = 8;
   for (let i = 0; i <= 10; i++) {
-    const x = M + (i / 10) * barW;
     const r2 = i <= 5 ? Math.round(46 + (243 - 46) * (i / 5)) : Math.round(243 + (231 - 243) * ((i - 5) / 5));
     const g2 = i <= 5 ? Math.round(204 + (156 - 204) * (i / 5)) : Math.round(156 + (76 - 156) * ((i - 5) / 5));
     const b2 = i <= 5 ? Math.round(113 + (18 - 113) * (i / 5)) : Math.round(18 + (60 - 18) * ((i - 5) / 5));
@@ -1166,7 +1537,6 @@ async function generatePDF() {
     doc.setFillColor(r2, g2, b2);
     doc.rect(M + i * segW, y, segW, barH, 'F');
   }
-  // Marker
   const markerX = M + (painVal / 10) * barW;
   doc.setFillColor(255, 255, 255);
   doc.circle(markerX, y + barH / 2, 4, 'F');
@@ -1180,35 +1550,35 @@ async function generatePDF() {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...gray);
-  doc.text('0 – Sem dor / No pain', M, y);
-  doc.text('10 – Pior dor / Worst pain', M + cw, y, { align: 'right' });
+  doc.text('0 – Sem dor / No pain / Sin dolor', M, y);
+  doc.text('10 – Pior dor / Worst pain / Peor dolor', M + cw, y, { align: 'right' });
   y += 10;
 
-  embedSignature('sig2', 'Assinatura / Signature (Página 2 / Page 2)');
+  embedSignature('sig2', 'Assinatura / Signature / Firma (Página 2 / Page 2)');
 
   // ── PAGE 3: MEDICAL HISTORY ──
   newPage();
-  sectionTitle('HISTÓRICO MÉDICO / MEDICAL HISTORY');
+  sectionTitle('HISTÓRICO MÉDICO / MEDICAL HISTORY / HISTORIA MÉDICA');
 
   yesNoBlock(
-    '1. Já fez alguma cirurgia?', 'Have you had any surgery?',
+    '1. Já fez alguma cirurgia?', 'Have you had any surgery? / ¿Ha tenido cirugía?',
     radio('cirurgia'),
-    [['O que / What', val('cirurgia_o_que')], ['Quando / When', val('cirurgia_quando')]]
+    [['O que / What / Qué', val('cirurgia_o_que')], ['Quando / When / Cuándo', val('cirurgia_quando')]]
   );
   yesNoBlock(
-    '2. Você toma remédio todos os dias?', 'Do you take medication daily?',
+    '2. Você toma remédio todos os dias?', 'Do you take medication daily? / ¿Toma medicamentos a diario?',
     radio('remedio'),
-    [['Qual / What', val('remedio_qual')], ['Quem receitou / Who prescribed', val('remedio_quem')]]
+    [['Qual / What / Cuál', val('remedio_qual')], ['Quem receitou / Who prescribed / Quién', val('remedio_quem')]]
   );
   yesNoBlock(
-    '3. Você tem algum problema de saúde?', 'Do you have any health problems?',
+    '3. Você tem algum problema de saúde?', 'Any health problems? / ¿Tiene algún problema de salud?',
     radio('saude'),
-    [['Qual / What', val('saude_qual')], ['Desde quando / Since when', val('saude_desde')]]
+    [['Qual / What / Cuál', val('saude_qual')], ['Desde quando / Since when / Desde cuándo', val('saude_desde')]]
   );
   yesNoBlock(
-    '4. Já sofreu acidente?', 'Any previous accident?',
+    '4. Já sofreu acidente?', 'Any previous accident? / ¿Ha sufrido algún accidente?',
     radio('acidente'),
-    [['O que / What', val('acidente_o_que')], ['Quando / When', val('acidente_quando')], ['Tratamento / Treatment', val('acidente_tratamento')]]
+    [['O que / What / Qué', val('acidente_o_que')], ['Quando / When / Cuándo', val('acidente_quando')], ['Tratamento / Treatment', val('acidente_tratamento')]]
   );
 
   // Q5 Family history
@@ -1216,9 +1586,15 @@ async function generatePDF() {
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...teal);
-  doc.text('5. Histórico de saúde / Medical history (you or family)', M, y);
+  doc.text('5. Histórico de saúde / Medical history / Historia médica (you or family)', M, y);
   y += 7;
-  const familyItems = ['Diabetes', 'Pressão alta / High blood pressure', 'Coração / Heart problems', 'Derrame / Stroke', 'Câncer / Cancer'];
+  const familyItems = [
+    'Diabetes',
+    'Pressão alta / High blood pressure / Presión alta',
+    'Coração / Heart problems / Problemas del corazón',
+    'Derrame / Stroke / Derrame cerebral',
+    'Câncer / Cancer / Cáncer'
+  ];
   familyItems.forEach(item => {
     const checked = [...document.querySelectorAll('.mh-question:nth-child(5) .check-btn.checked')].map(el => el.dataset.check).includes(item);
     doc.setFontSize(9);
@@ -1239,9 +1615,16 @@ async function generatePDF() {
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...red);
-  doc.text('6. ⚠ MUITO IMPORTANTE / VERY IMPORTANT', M + 2, y + 4);
+  doc.text('6. ⚠ MUITO IMPORTANTE / VERY IMPORTANT / MUY IMPORTANTE', M + 2, y + 4);
   y += 10;
-  const importantItems = ['Marca-passo / Pacemaker', 'Grávida / Pregnant', 'Próteses/metais / Metal implants', 'Trombose / Blood clots', 'Câncer/tumor / Cancer/tumor', 'Dormência na pele / Loss of sensation'];
+  const importantItems = [
+    'Marca-passo / Pacemaker / Marcapasos',
+    'Grávida / Pregnant / Embarazada',
+    'Próteses/metais / Metal implants / Prótesis/metales',
+    'Trombose / Blood clots / Trombosis',
+    'Câncer/tumor / Cancer/tumor / Cáncer/tumor',
+    'Dormência / Loss of sensation / Entumecimiento'
+  ];
   importantItems.forEach(item => {
     const checked = [...document.querySelectorAll('.important-box .check-btn.checked')].map(el => el.dataset.check).includes(item);
     doc.setFontSize(9);
@@ -1251,7 +1634,7 @@ async function generatePDF() {
     y += 7;
   });
 
-  // Footer on last page
+  // Footer
   y += 6;
   doc.setDrawColor(...teal);
   doc.line(M, y, M + cw, y);
@@ -1270,9 +1653,9 @@ async function submitForm() {
   const dateStr = val('dataHoje') || new Date().toLocaleDateString();
   const filename = `Primecare_Intake_${name.replace(/\s+/g,'_')}_${dateStr.replace(/\//g,'-')}.pdf`;
 
-  // Show loading state
   const btnNext = document.getElementById('btnNext');
-  btnNext.textContent = '⏳ Gerando PDF...';
+  const loadingLabels = { pt: '⏳ Gerando PDF...', en: '⏳ Generating PDF...', es: '⏳ Generando PDF...' };
+  btnNext.textContent = loadingLabels[currentLang] || '⏳ Gerando PDF...';
   btnNext.disabled = true;
 
   try {
@@ -1280,7 +1663,6 @@ async function submitForm() {
     const pdfBlob = doc.output('blob');
     const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
 
-    // Try Web Share API (iOS Safari supports file sharing)
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
       await navigator.share({
         files: [pdfFile],
@@ -1288,7 +1670,6 @@ async function submitForm() {
         text: `Primecare Chiropractic intake form for ${name} on ${dateStr}. Please send to frontdesk@primecare.clinic`
       });
     } else {
-      // Fallback: download PDF + open mail
       const url = URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
       a.href = url;
@@ -1298,14 +1679,13 @@ async function submitForm() {
     }
   } catch (err) {
     if (err.name !== 'AbortError') {
-      alert('Erro ao gerar PDF. Por favor tente novamente. / Error generating PDF. Please try again.');
+      alert('Erro ao gerar PDF. Por favor tente novamente.\nError generating PDF. Please try again.\nError al generar PDF. Intente nuevamente.');
     }
   }
 
-  btnNext.textContent = '✉️ Enviar / Submit';
+  btnNext.innerHTML = `<span class="pt-only">✉️ Enviar</span><span class="en-only">✉️ Submit</span><span class="es-only">✉️ Enviar</span>`;
   btnNext.disabled = false;
 
-  // Show thank you
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('thankYou').classList.add('active');
   document.getElementById('navBar').style.display = 'none';
@@ -1314,7 +1694,6 @@ async function submitForm() {
 
 // ── RESTART ──
 function restart() {
-  // Reset form
   document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="time"]').forEach(el => el.value = '');
   document.querySelectorAll('.radio-btn').forEach(el => el.classList.remove('selected'));
   document.querySelectorAll('.check-btn').forEach(el => {
@@ -1331,11 +1710,13 @@ function restart() {
   clearSig('sig2');
   document.getElementById('dataHoje').valueAsDate = new Date();
 
-  // Reset UI
   document.getElementById('thankYou').classList.remove('active');
   document.getElementById('navBar').style.display = '';
   document.getElementById('stepTabs').style.display = '';
   showPage(0);
+
+  // Show language selector again for next patient
+  document.getElementById('langOverlay').style.display = 'flex';
 }
 </script>
 </body>
